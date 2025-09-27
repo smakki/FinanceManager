@@ -1,4 +1,5 @@
-﻿using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
+﻿using FinanceManager.TransactionsService.Contracts.DTOs.AccountTypes;
+using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
 using FluentResults;
 
 namespace FinanceManager.TransactionsService.Abstractions.Services;
@@ -19,13 +20,7 @@ public interface ITransactionAccountService
     Task<Result<ICollection<TransactionAccountDto>>> GetPagedAsync(
         TransactionAccountFilterDto filter,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Получает все счета пользователя
-    /// </summary>
-    Task<Result<ICollection<TransactionAccountDto>>> GetByHolderIdAsync(
-        Guid holderId,
-        CancellationToken cancellationToken = default);
+    
 
     /// <summary>
     /// Создаёт новый счёт
