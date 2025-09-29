@@ -1,4 +1,4 @@
-﻿namespace FinanceManager.TransactionsService.Abstractions.Repositories.Common;
+namespace FinanceManager.TransactionsService.Abstractions.Repositories.Common;
 
 /// <summary>
 /// Интерфейс единицы работы для управления транзакциями и сохранения изменений

@@ -16,4 +16,6 @@
       <ProjectReference Include="..\FinanceManager.TransactionsService.Contracts\FinanceManager.TransactionsService.Contracts.csproj" />
     </ItemGroup>
 
+
+
 </Project>

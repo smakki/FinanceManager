@@ -29,15 +29,16 @@ public class AccountService(
     /// <returns>DTO счета или ошибка, если не найден</returns>
     public async Task<Result<AccountDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting account by id: {AccountId}", id);
+        logger.Information("Получение счета по идентификатору: {AccountId}", id);
         var account =
             await accountRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (account is null)
         {
+            logger.Warning("Счет с идентификатором {AccountId} не найден", id);
             return Result.Fail(errorsFactory.NotFound(id));
         }
 
-        logger.Information("Successfully retrieved account: {AccountId}", id);
+        logger.Information("Счет {AccountId} успешно получен", id);
         return Result.Ok(account.ToDto());
     }
 
@@ -50,10 +51,12 @@ public class AccountService(
     public async Task<Result<ICollection<AccountDto>>> GetPagedAsync(AccountFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting paged accounts with filter: {@Filter}", filter);
+        logger.Information("Получение списка счетов с фильтрацией: {@Filter}", filter);
+
         var accounts = await accountRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
         var accountsDto = accounts.ToDto();
-        logger.Information("Successfully retrieved {Count} account types", accountsDto.Count);
+
+        logger.Information("Получено {Count} счетов", accountsDto.Count);
         return Result.Ok(accountsDto);
     }
 
@@ -66,15 +69,15 @@ public class AccountService(
     public async Task<Result<AccountDto>> GetDefaultAccountAsync(Guid registryHolderId,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting default account for registryHolder: {RegistryHolderId}", registryHolderId);
+        logger.Information("Получение счета по умолчанию для владельца: {RegistryHolderId}", registryHolderId);
         var account = await accountRepository.GetDefaultAccountAsync(registryHolderId, cancellationToken);
         if (account is null)
         {
+            logger.Warning("Счет по умолчанию для владельца {RegistryHolderId} не найден", registryHolderId);
             return Result.Fail(errorsFactory.DefaultAccountNotFound(registryHolderId));
         }
 
-        logger.Information(
-            "Successfully get default account: {DefaultAccountId} for registryHolder: {RegistryHolderId}",
+        logger.Information("Найден счет по умолчанию {AccountId} для владельца {RegistryHolderId}",
             account.Id, registryHolderId);
         return Result.Ok(account.ToDto());
     }
@@ -88,13 +91,14 @@ public class AccountService(
     public async Task<Result<AccountDto>> CreateAsync(CreateAccountDto createDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Creating account: {@CreateDto}", createDto);
+        logger.Information("Создание нового счета: {@CreateDto}", createDto);
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
+            logger.Warning("Попытка создания счета без указания имени");
             return Result.Fail(errorsFactory.NameIsRequired());
         }
-        
+
         // TODO валидация входящих значений createDto при помощи FluentValidation
 
         var checkResult = await CheckRegistryHolderAsync(createDto.RegistryHolderId, cancellationToken);
@@ -112,12 +116,15 @@ public class AccountService(
 
         if (createDto.IsDefault)
         {
+            logger.Debug("Снятие флага по умолчанию с предыдущего счета для владельца {RegistryHolderId}",
+                createDto.RegistryHolderId);
             await UnsetDefaultAccountIfExistsAsync(createDto.RegistryHolderId, cancellationToken);
         }
 
         var account = await accountRepository.AddAsync(createDto.ToAccount(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
-        logger.Information("Successfully created account: {AccountId}", account.Id);
+
+        logger.Information("Счет {AccountId} успешно создан", account.Id);
         return Result.Ok(account.ToDto());
     }
 
@@ -130,11 +137,12 @@ public class AccountService(
     public async Task<Result<AccountDto>> UpdateAsync(UpdateAccountDto updateDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Updating account: {@UpdateDto}", updateDto);
+        logger.Information("Обновление счета: {@UpdateDto}", updateDto);
 
         var account = await accountRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
         if (account is null)
         {
+            logger.Warning("Счет с идентификатором {AccountId} не найден для обновления", updateDto.Id);
             return Result.Fail(errorsFactory.NotFound(updateDto.Id));
         }
 
@@ -142,6 +150,7 @@ public class AccountService(
         var isArchived = updateDto.IsArchived ?? account.IsArchived;
         if (isDefault && (isArchived || account.IsDeleted))
         {
+            logger.Warning("Попытка архивирования счета по умолчанию {AccountId}", updateDto.Id);
             return Result.Fail(errorsFactory.CannotArchiveDefaultAccount(updateDto.Id));
         }
 
@@ -192,6 +201,8 @@ public class AccountService(
         {
             if (updateDto.IsDefault.Value)
             {
+                logger.Debug("Снятие флага по умолчанию с предыдущего счета для владельца {RegistryHolderId}",
+                    account.RegistryHolderId);
                 await UnsetDefaultAccountIfExistsAsync(account.RegistryHolderId, cancellationToken);
             }
 
@@ -214,16 +225,82 @@ public class AccountService(
 
         if (isNeedUpdate)
         {
-            accountRepository.Update(account);
+            // нам не нужно вызывать метод accountRepository.UpdateAsync(), так как сущность account уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
-            logger.Information("Successfully updated account: {AccountId}", updateDto.Id);
+            logger.Information("Счет {AccountId} успешно обновлен", updateDto.Id);
         }
         else
         {
-            logger.Information("No changes detected for account: {AccountId}", updateDto.Id);
+            logger.Information("Изменения для счета {AccountId} не обнаружены", updateDto.Id);
         }
 
         return Result.Ok(account.ToDto());
+    }
+
+    /// <summary>
+    /// Мягкое удаление (soft delete) счета по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат операции</returns>
+    public async Task<Result> SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        logger.Information("Мягкое удаление счета: {AccountId}", id);
+
+        var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
+        if (account is null)
+        {
+            logger.Warning("Счет с идентификатором {AccountId} не найден для удаления", id);
+            return Result.Fail(errorsFactory.NotFound(id));
+        }
+
+        if (account.IsDeleted)
+        {
+            logger.Information("Счет {AccountId} уже помечен как удаленный", id);
+            return Result.Ok();
+        }
+
+        if (account.IsDefault)
+        {
+            logger.Warning("Попытка мягкого удаления счета по умолчанию {AccountId}", id);
+            return Result.Fail(errorsFactory.CannotSoftDeleteDefaultAccount(id));
+        }
+
+        account.MarkAsDeleted();
+        await unitOfWork.CommitAsync(cancellationToken);
+
+        logger.Information("Счет {AccountId} успешно помечен как удаленный", id);
+        return Result.Ok();
+    }
+
+    /// <summary>
+    /// Восстанавливает ранее удалённый (мягко удалённый) счет
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат операции</returns>
+    public async Task<Result> RestoreDeletedAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        logger.Information("Восстановление удаленного счета: {AccountId}", id);
+
+        var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
+        if (account is null)
+        {
+            logger.Warning("Счет с идентификатором {AccountId} не найден для восстановления", id);
+            return Result.Fail(errorsFactory.NotFound(id));
+        }
+
+        if (!account.IsDeleted)
+        {
+            logger.Information("Счет {AccountId} не был удален, восстановление не требуется", id);
+            return Result.Ok();
+        }
+
+        account.Restore();
+        await unitOfWork.CommitAsync(cancellationToken);
+
+        logger.Information("Счет {AccountId} успешно восстановлен", id);
+        return Result.Ok();
     }
 
     /// <summary>
@@ -234,11 +311,12 @@ public class AccountService(
     /// <returns>Результат операции</returns>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Deleting account: {AccountId}", id);
-        
+        logger.Information("Жесткое удаление счета: {AccountId}", id);
+
         var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (account is null)
         {
+            logger.Information("Счет {AccountId} не найден, удаление не требуется", id);
             return Result.Ok();
         }
 
@@ -246,14 +324,15 @@ public class AccountService(
         {
             return Result.Fail(errorsFactory.CannotDeleteDefaultAccount(id));
         }
-        
-        if (!await accountRepository.CanBeDeletedAsync(id, cancellationToken))
-        {
-            return Result.Fail(errorsFactory.CannotDeleteUsedAccount(id));
-        }
 
         await accountRepository.DeleteAsync(id, cancellationToken);
-        await unitOfWork.CommitAsync(cancellationToken);
+        var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
+
+        if (affectedRows > 0)
+        {
+            logger.Information("Счет {AccountId} успешно удален", id);
+        }
+        
         return Result.Ok();
     }
 
@@ -265,26 +344,30 @@ public class AccountService(
     /// <returns>Результат операции</returns>
     public async Task<Result> ArchiveAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Archiving account: {AccountId}", id);
+        logger.Information("Архивирование счета: {AccountId}", id);
         var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (account is null)
         {
+            logger.Warning("Счет с идентификатором {AccountId} не найден для архивирования", id);
             return Result.Fail(errorsFactory.NotFound(id));
         }
 
         if (account.IsDefault)
         {
+            logger.Warning("Попытка архивирования счета по умолчанию {AccountId}", id);
             return Result.Fail(errorsFactory.CannotArchiveDefaultAccount(id));
         }
 
         if (account.IsArchived)
         {
+            logger.Information("Счет {AccountId} уже заархивирован", id);
             return Result.Ok();
         }
-        
-        await accountRepository.ArchiveAsync(id, cancellationToken);
+
+        account.Archive();
         await unitOfWork.CommitAsync(cancellationToken);
-        logger.Information("Successfully archived account: {AccountId}", id);
+
+        logger.Information("Счет {AccountId} успешно заархивирован", id);
         return Result.Ok();
     }
 
@@ -296,22 +379,24 @@ public class AccountService(
     /// <returns>Результат операции</returns>
     public async Task<Result> UnarchiveAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Unarchiving account: {AccountId}", id);
+        logger.Information("Разархивирование счета: {AccountId}", id);
         var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (account is null)
         {
+            logger.Warning("Счет с идентификатором {AccountId} не найден для разархивирования", id);
             return Result.Fail(errorsFactory.NotFound(id));
         }
 
         if (!account.IsArchived)
         {
-            logger.Information("Account with ID {AccountId} is already unarchived. No action taken.", id);
+            logger.Information("Счет {AccountId} не был заархивирован, действие не требуется", id);
             return Result.Ok();
         }
-        
-        await accountRepository.UnarchiveAsync(id, cancellationToken);
+
+        account.UnArchive();
         await unitOfWork.CommitAsync(cancellationToken);
-        logger.Information("Successfully unarchived account: {AccountId}", id);
+
+        logger.Information("Счет {AccountId} успешно разархивирован", id);
         return Result.Ok();
     }
 
@@ -323,26 +408,30 @@ public class AccountService(
     /// <returns>Результат операции</returns>
     public async Task<Result> SetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Setting account as default: {AccountId}", id);
+        logger.Information("Установка счета по умолчанию: {AccountId}", id);
         var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (account is null)
         {
+            logger.Warning("Счет с идентификатором {AccountId} не найден", id);
             return Result.Fail(errorsFactory.NotFound(id));
         }
 
         if (account.IsDefault)
         {
-            logger.Information("Account {AccountId} is already set as default", id);
+            logger.Information("Счет {AccountId} уже установлен как счет по умолчанию", id);
             return Result.Ok();
         }
 
         if (account.IsArchived || account.IsDeleted)
         {
+            logger.Warning(
+                "Попытка установки заархивированного или удаленного счета {AccountId} как счета по умолчанию", id);
             return Result.Fail(errorsFactory.AccountCannotBeSetAsDefaultIfArchivedOrDeleted(id));
         }
 
-        await accountRepository.SetAsDefaultAsync(id, cancellationToken);
+        account.SetAsDefault();
         await unitOfWork.CommitAsync(cancellationToken);
+        logger.Information("Счет {AccountId} успешно установлен как счет по умолчанию", id);
         return Result.Ok();
     }
 
@@ -356,42 +445,53 @@ public class AccountService(
     public async Task<Result> UnsetAsDefaultAsync(Guid id, Guid replacementDefaultAccountId,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Unsetting account as default: {AccountId}", id);
+        logger.Information(
+            "Снятие флага по умолчанию со счета {AccountId} и установка флага на счет {ReplacementAccountId}",
+            id, replacementDefaultAccountId);
         var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (account is null)
         {
+            logger.Warning("Счет с идентификатором {AccountId} не найден", id);
             return Result.Fail(errorsFactory.NotFound(id));
         }
 
         if (!account.IsDefault)
         {
+            logger.Information("Счет {AccountId} не был установлен как счет по умолчанию", id);
             return Result.Ok();
         }
 
-        logger.Information("Getting new account fo replace as default: {AccountId}", replacementDefaultAccountId);
         var replacementAccount =
             await accountRepository.GetByIdAsync(replacementDefaultAccountId, cancellationToken: cancellationToken);
         if (replacementAccount is null)
         {
+            logger.Warning("Замещающий счет с идентификатором {ReplacementAccountId} не найден",
+                replacementDefaultAccountId);
             return Result.Fail(errorsFactory.ReplacementDefaultAccountNotFound(replacementDefaultAccountId));
         }
-        
+
         if (replacementAccount.IsArchived || replacementAccount.IsDeleted)
         {
+            logger.Warning("Замещающий счет {ReplacementAccountId} заархивирован или удален",
+                replacementDefaultAccountId);
             return Result.Fail(errorsFactory.ReplacementAccountCannotBeSetAsDefault(replacementDefaultAccountId));
         }
 
         if (replacementAccount.RegistryHolderId != account.RegistryHolderId)
         {
-            return Result.Fail(errorsFactory.RegistryHolderDiffersBetweenReplacedDefaultAccounts(id, replacementDefaultAccountId));
+            logger.Warning("Владельцы счетов {AccountId} и {ReplacementAccountId} не совпадают",
+                id, replacementDefaultAccountId);
+            return Result.Fail(
+                errorsFactory.RegistryHolderDiffersBetweenReplacedDefaultAccounts(id, replacementDefaultAccountId));
         }
 
-        account.IsDefault = false;
-        replacementAccount.IsDefault = true;
-        
-        accountRepository.Update(account);
+        account.UnsetAsDefault();
+        replacementAccount.SetAsDefault();
         await unitOfWork.CommitAsync(cancellationToken);
-        logger.Information("Successfully unset default for account: {AccountId}", id);
+
+        logger.Information(
+            "Флаг по умолчанию успешно снят со счета {AccountId} и установлен на счет {ReplacementAccountId}",
+            id, replacementDefaultAccountId);
         return Result.Ok();
     }
 
@@ -401,11 +501,18 @@ public class AccountService(
     /// <param name="registryHolderId">Идентификатор владельца</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    protected async Task<Result> CheckRegistryHolderAsync(Guid registryHolderId, CancellationToken cancellationToken)
+    private async Task<Result> CheckRegistryHolderAsync(Guid registryHolderId, CancellationToken cancellationToken)
     {
+        logger.Debug("Проверка существования владельца справочника: {RegistryHolderId}", registryHolderId);
         var holder = await registryHolderRepository.GetByIdAsync(registryHolderId, disableTracking: true,
             cancellationToken: cancellationToken);
-        return holder is null ? Result.Fail(errorsFactory.RegistryHolderNotFound(registryHolderId)) : Result.Ok();
+        if (holder is null)
+        {
+            logger.Warning("Владелец справочника {RegistryHolderId} не найден", registryHolderId);
+            return Result.Fail(errorsFactory.RegistryHolderNotFound(registryHolderId));
+        }
+
+        return Result.Ok();
     }
 
     /// <summary>
@@ -414,17 +521,21 @@ public class AccountService(
     /// <param name="accountTypeId">Идентификатор типа счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    protected async Task<Result> CheckAccountTypeAsync(Guid accountTypeId, CancellationToken cancellationToken)
+    private async Task<Result> CheckAccountTypeAsync(Guid accountTypeId, CancellationToken cancellationToken)
     {
+        logger.Debug("Проверка существования типа счета: {AccountTypeId}", accountTypeId);
+
         var accountType = await accountTypeRepository.GetByIdAsync(
             accountTypeId, disableTracking: true, cancellationToken: cancellationToken);
         if (accountType is null)
         {
+            logger.Warning("Тип счета {AccountTypeId} не найден", accountTypeId);
             return Result.Fail(errorsFactory.AccountTypeNotFound(accountTypeId));
         }
 
         if (accountType.IsDeleted)
         {
+            logger.Warning("Тип счета {AccountTypeId} помечен как удаленный", accountTypeId);
             return Result.Fail(errorsFactory.AccountTypeIsSoftDeleted(accountType.Id));
         }
 
@@ -437,16 +548,24 @@ public class AccountService(
     /// <param name="currencyId">Идентификатор валюты</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    protected async Task<Result> CheckCurrencyAsync(Guid currencyId, CancellationToken cancellationToken)
+    private async Task<Result> CheckCurrencyAsync(Guid currencyId, CancellationToken cancellationToken)
     {
+        logger.Debug("Проверка существования валюты: {CurrencyId}", currencyId);
         var currency = await currencyRepository.GetByIdAsync(
             currencyId, disableTracking: true, cancellationToken: cancellationToken);
         if (currency is null)
         {
+            logger.Warning("Валюта {CurrencyId} не найдена", currencyId);
             return Result.Fail(errorsFactory.CurrencyNotFound(currencyId));
         }
 
-        return currency.IsDeleted ? Result.Fail(errorsFactory.CurrencyIsSoftDeleted(currencyId)) : Result.Ok();
+        if (currency.IsDeleted)
+        {
+            logger.Warning("Валюта {CurrencyId} помечена как удаленная", currencyId);
+            return Result.Fail(errorsFactory.CurrencyIsSoftDeleted(currencyId));
+        }
+
+        return Result.Ok();
     }
 
     /// <summary>
@@ -455,11 +574,19 @@ public class AccountService(
     /// <param name="bankId">Идентификатор банка</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    protected async Task<Result> CheckBankAsync(Guid bankId, CancellationToken cancellationToken)
+    private async Task<Result> CheckBankAsync(Guid bankId, CancellationToken cancellationToken)
     {
+        logger.Debug("Проверка существования банка: {BankId}", bankId);
+
         var bank = await bankRepository.GetByIdAsync(
             bankId, disableTracking: true, cancellationToken: cancellationToken);
-        return bank is null ? Result.Fail(errorsFactory.BankNotFound(bankId)) : Result.Ok();
+        if (bank is null)
+        {
+            logger.Warning("Банк {BankId} не найден", bankId);
+            return Result.Fail(errorsFactory.BankNotFound(bankId));
+        }
+
+        return Result.Ok();
     }
 
     /// <summary>
@@ -467,15 +594,14 @@ public class AccountService(
     /// </summary>
     /// <param name="registryHolderId">Идентификатор владельца</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    protected async Task UnsetDefaultAccountIfExistsAsync(Guid registryHolderId, CancellationToken cancellationToken)
+    private async Task UnsetDefaultAccountIfExistsAsync(Guid registryHolderId, CancellationToken cancellationToken)
     {
         var previousDefaultAccount =
             await accountRepository.GetDefaultAccountAsync(registryHolderId, cancellationToken);
         if (previousDefaultAccount is not null)
         {
-            await accountRepository.UnsetAsDefaultAsync(previousDefaultAccount.Id, cancellationToken);
-            logger.Information("Unset default property to false for account: {AccountId}",
-                previousDefaultAccount.Id);
+            previousDefaultAccount.UnsetAsDefault();
+            logger.Debug("Снят флаг по умолчанию со счета: {AccountId}", previousDefaultAccount.Id);
         }
     }
 }

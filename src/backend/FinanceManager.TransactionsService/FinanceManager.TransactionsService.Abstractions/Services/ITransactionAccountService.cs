@@ -20,13 +20,7 @@ public interface ITransactionAccountService
     Task<Result<ICollection<TransactionAccountDto>>> GetPagedAsync(
         TransactionAccountFilterDto filter,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Получает все счета пользователя
-    /// </summary>
-    Task<Result<ICollection<TransactionAccountDto>>> GetByHolderIdAsync(
-        Guid holderId,
-        CancellationToken cancellationToken = default);
+    
 
     /// <summary>
     /// Создаёт новый счёт
