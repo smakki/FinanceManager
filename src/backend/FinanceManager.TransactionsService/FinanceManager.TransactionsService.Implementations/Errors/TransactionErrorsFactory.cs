@@ -1,4 +1,5 @@
-﻿using FinanceManager.TransactionsService.Implementations.Errors.Abstractions;
+﻿using FinanceManager.TransactionsService.Abstractions.Errors;
+using FinanceManager.TransactionsService.Implementations.Errors.Abstractions;
 using FluentResults;
 using Serilog;
 

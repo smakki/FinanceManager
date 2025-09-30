@@ -15,6 +15,12 @@ public class TransactionAccountService(
     IUnitOfWork unitOfWork,
     ILogger logger) : ITransactionAccountService
 {
+    /// <summary>
+    /// Получает счет по идентификатору
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>DTO счета или ошибка, если не найдена</returns>
     public async Task<Result<TransactionAccountDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Получение счета по идентификатору {id}", id);
@@ -56,23 +62,25 @@ public class TransactionAccountService(
         throw new NotImplementedException();
     }
 
-    public Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
+        logger.Information("Жесткое удаление счета: {AccountId}", id);
 
-    public Task<Result<bool>> BelongsToUserAsync(Guid accountId, Guid userId, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+        var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
+        if (account is null)
+        {
+            logger.Information("Счет {AccountId} не найден, удаление не требуется", id);
+            return Result.Ok();
+        }
+        
+        await accountRepository.DeleteAsync(id, cancellationToken);
+        var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
 
-    public Task<Result<bool>> IsWithinCreditLimitAsync(Guid accountId, decimal amount, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result<AccountTypeDto>> GetAccountTypeAsync(Guid accountId, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        if (affectedRows > 0)
+        {
+            logger.Information("Счет {AccountId} успешно удален", id);
+        }
+        
+        return Result.Ok();
     }
 }

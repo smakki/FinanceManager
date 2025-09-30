@@ -40,23 +40,5 @@ public interface ITransactionAccountService
     /// Удаляет счёт
     /// </summary>
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет, принадлежит ли счёт указанному пользователю
-    /// </summary>
-    Task<Result<bool>> BelongsToUserAsync(Guid accountId, Guid userId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет, не превышает ли сумма кредитный лимит счёта
-    /// </summary>
-    Task<Result<bool>> IsWithinCreditLimitAsync(
-        Guid accountId,
-        decimal amount,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Получает тип счёта
-    /// </summary>
     
-    Task<Result<AccountTypeDto>> GetAccountTypeAsync(Guid accountId, CancellationToken cancellationToken = default);
 }
