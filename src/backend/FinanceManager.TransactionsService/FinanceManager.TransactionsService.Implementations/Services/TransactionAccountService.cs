@@ -83,4 +83,20 @@ public class TransactionAccountService(
         
         return Result.Ok();
     }
+    
+    public async Task<Result> CheckAccountAsync(Guid accountId, CancellationToken cancellationToken)
+    {
+        var account = await accountRepository.GetByIdAsync(accountId, disableTracking: true, cancellationToken: cancellationToken);
+        if (account is null)
+        {
+            return Result.Fail(errorsFactory.NotFound(accountId));
+        }
+
+        if (account.IsDeleted)
+        {
+            return Result.Fail(errorsFactory.IsSoftDeleted(accountId));
+        }
+
+        return account.IsArchived ? Result.Fail(errorsFactory.IsArchived(accountId)) : Result.Ok();
+    }
 }

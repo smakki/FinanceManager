@@ -9,6 +9,7 @@ using Serilog;
 namespace FinanceManager.TransactionsService.Implementations.Services;
 
 public class TransferService(IUnitOfWork unitOfWork,
+    ITransactionAccountService transactionAccountService,
     ITransferRepository transferRepository,
     ITransactionAccountRepository accountRepository,
     ITransferErrorsFactory errorsFactory,
@@ -63,11 +64,15 @@ public class TransferService(IUnitOfWork unitOfWork,
             return Result.Fail(errorsFactory.InvalidAmount());
         }
 
-        var checkResult = await CheckAccountAsync(createDto.AccountId, cancellationToken);
+        var checkResult = await transactionAccountService.CheckAccountAsync(createDto.FromAccountId, cancellationToken);
         if (checkResult.IsFailed)
             return Result.Fail(checkResult.Errors);
         
-        var transaction = await transactionRepository.AddAsync(createDto.ToTransaction(), cancellationToken);
+        checkResult = await transactionAccountService.CheckAccountAsync(createDto.ToAccountId, cancellationToken);
+        if (checkResult.IsFailed)
+            return Result.Fail(checkResult.Errors);
+        
+        var transaction = await transferRepository.AddAsync(createDto.ToTransfer(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
         logger.Information("Successfully created transaction: {TransactionId}", transaction.Id);
         return Result.Ok(transaction.ToDto());

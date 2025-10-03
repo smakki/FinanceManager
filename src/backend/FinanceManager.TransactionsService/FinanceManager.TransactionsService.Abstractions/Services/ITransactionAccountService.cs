@@ -40,5 +40,12 @@ public interface ITransactionAccountService
     /// Удаляет счёт
     /// </summary>
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-    
+
+    /// <summary>
+    /// Проверяет возможность использования счета
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Result> CheckAccountAsync(Guid accountId, CancellationToken cancellationToken);
 }

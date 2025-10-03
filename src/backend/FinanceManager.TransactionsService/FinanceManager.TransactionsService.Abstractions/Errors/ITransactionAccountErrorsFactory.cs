@@ -7,13 +7,27 @@ namespace FinanceManager.TransactionsService.Abstractions.Errors;
 /// </summary>
 public interface ITransactionAccountErrorsFactory
 {
-        /// <summary>
+    /// <summary>
     /// Создаёт ошибку, если счет с указанным идентификатором не найден
     /// </summary>
     /// <param name="id">Идентификатор счета</param>
     /// <returns>Экземпляр ошибки</returns>
     IError NotFound(Guid id);
 
+    /// <summary>
+    /// Создаёт ошибку, если счёт был мягко удалён
+    /// </summary>
+    /// <param name="id">Идентификатор счёта</param>
+    /// <returns>Экземпляр ошибки</returns>
+    IError IsSoftDeleted(Guid id);
+    
+    /// <summary>
+    /// Создаёт ошибку, если счёт архивирован
+    /// </summary>
+    /// <param name="id">Идентификатор счёта</param>
+    /// <returns>Экземпляр ошибки</returns>
+    IError IsArchived(Guid id);
+    
     /// <summary>
     /// Создаёт ошибку, если название счета не заполнено
     /// </summary>

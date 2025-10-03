@@ -26,6 +26,30 @@ public class TransactionAccountErrorsFactory(IErrorsFactory errorsFactory, ILogg
         logger.Warning("Счёт не найден: {AccountId}", id);
         return errorsFactory.NotFound("ACCOUNT_NOT_FOUND", EntityName, id);
     }
+    
+    /// <summary>
+    /// Создаёт ошибку, если счёт архивирован
+    /// </summary>
+    /// <param name="accountId">Идентификатор счёта</param>
+    /// <returns>Экземпляр ошибки</returns>
+    public IError IsArchived(Guid accountId)
+    {
+        logger.Warning("Account '{AccountId}'  is archived", accountId);
+        return errorsFactory.CustomConflictError(
+            "ACCOUNT_ARCHIVED",
+            $"Account '{accountId}' is archived and cannot be used");
+    }
+    
+    /// <summary>
+    /// Создаёт ошибку, если счёт был мягко удалён
+    /// </summary>
+    /// <param name="id">Идентификатор счёта</param>
+    /// <returns>Экземпляр ошибки</returns>
+    public IError IsSoftDeleted(Guid id)
+    {
+        logger.Warning("Account '{AccountId}' is soft deleted", id);
+        return errorsFactory.NotFound("ACCOUNT_SOFT_DELETED", EntityName, id);
+    }
 
     /// <summary>
     /// Создаёт ошибку, если у пользователя отсутствует счет по умолчанию
