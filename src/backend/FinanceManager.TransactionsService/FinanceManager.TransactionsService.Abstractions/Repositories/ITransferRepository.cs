@@ -21,4 +21,9 @@ public interface ITransferRepository: IBaseRepository<Transfer, TransferFilterDt
     /// Проверяет, принадлежит ли перевод указанному пользователю
     /// </summary>
     Task<bool> BelongsToUserAsync(Guid transferId, Guid userId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Получает общее количество переводов по фильтру
+    /// </summary>
+    Task<int> GetCountAsync(TransferFilterDto filter, CancellationToken cancellationToken = default);
 }

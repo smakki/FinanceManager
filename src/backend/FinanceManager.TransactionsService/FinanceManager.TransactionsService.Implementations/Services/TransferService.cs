@@ -78,18 +78,105 @@ public class TransferService(IUnitOfWork unitOfWork,
         return Result.Ok(transaction.ToDto());
     }
 
-    public Task<Result<TransferDto>> UpdateAsync(UpdateTransferDto updateDto, CancellationToken cancellationToken = default)
+    public async Task<Result<TransferDto>> UpdateAsync(UpdateTransferDto updateDto, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        logger.Information("Updating transfer: {@UpdateDto}", updateDto);
+
+        var transfer = await transferRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
+        if (transfer is null)
+        {
+            return Result.Fail(errorsFactory.NotFound(updateDto.Id));
+        }
+
+        var isNeedUpdate = false;
+
+        if (updateDto.Date is not null && transfer.Date != updateDto.Date.Value)
+        {
+            transfer.Date = updateDto.Date.Value;
+            isNeedUpdate = true;
+        }
+
+        if (updateDto.FromAccountId is not null && transfer.FromAccountId != updateDto.FromAccountId.Value)
+        {
+            var checkResult = await transactionAccountService.CheckAccountAsync(updateDto.FromAccountId.Value, cancellationToken);
+            if (checkResult.IsFailed)
+                return Result.Fail(checkResult.Errors);
+            transfer.FromAccountId = updateDto.FromAccountId.Value;
+            isNeedUpdate = true;
+        }
+        
+        if (updateDto.ToAccountId is not null && transfer.ToAccountId != updateDto.ToAccountId.Value)
+        {
+            var checkResult = await transactionAccountService.CheckAccountAsync(updateDto.ToAccountId.Value, cancellationToken);
+            if (checkResult.IsFailed)
+                return Result.Fail(checkResult.Errors);
+            transfer.ToAccountId = updateDto.ToAccountId.Value;
+            isNeedUpdate = true;
+        }
+
+        if (updateDto.FromAmount is not null && transfer.FromAmount != updateDto.FromAmount.Value)
+        {
+            if (updateDto.FromAmount.Value <= 0)
+            {
+                return Result.Fail(errorsFactory.InvalidAmount());
+            }
+            transfer.FromAmount = updateDto.FromAmount.Value;
+            isNeedUpdate = true;
+        }
+        
+        if (updateDto.ToAmount is not null && transfer.ToAmount != updateDto.ToAmount.Value)
+        {
+            if (updateDto.ToAmount.Value <= 0)
+            {
+                return Result.Fail(errorsFactory.InvalidAmount());
+            }
+            transfer.ToAmount = updateDto.ToAmount.Value;
+            isNeedUpdate = true;
+        }
+
+        if (updateDto.Description != transfer.Description)
+        {
+            transfer.Description = updateDto.Description;
+            isNeedUpdate = true;
+        }
+
+        if (isNeedUpdate)
+        {
+            transferRepository.Update(transfer);
+            await unitOfWork.CommitAsync(cancellationToken);
+            logger.Information("Successfully updated transfer: {TransferId}", updateDto.Id);
+        }
+        else
+        {
+            logger.Information("No changes detected for transaction: {TransactionId}", updateDto.Id);
+        }
+
+        return Result.Ok(transfer.ToDto());
+
     }
 
-    public Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        logger.Information("Deleting transfer: {TransferId}", id);
+
+        var transfer = await transferRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
+        if (transfer is null)
+        {
+            return Result.Ok();
+        }
+
+        await transferRepository.DeleteAsync(id, cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
+        logger.Information("Successfully deleted transfer: {TransferId}", id);
+        return Result.Ok();
+
     }
 
-    public Task<Result<int>> GetCountAsync(TransferFilterDto filter, CancellationToken cancellationToken = default)
+    public async Task<Result<int>> GetCountAsync(TransferFilterDto filter, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        logger.Information("Getting transfers count with filter: {@Filter}", filter);
+        var count = await transferRepository.GetCountAsync(filter, cancellationToken);
+        logger.Information("Successfully retrieved transfer count: {Count}", count);
+        return Result.Ok(count);
     }
 }
