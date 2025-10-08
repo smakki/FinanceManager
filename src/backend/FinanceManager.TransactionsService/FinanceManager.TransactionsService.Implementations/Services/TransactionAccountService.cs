@@ -57,9 +57,21 @@ public class TransactionAccountService(
         return Result.Ok(account.ToDto());
     }
 
-    public Task<Result<TransactionAccountDto>> UpdateAsync(UpdateTransactionAccountDto updateDto, CancellationToken cancellationToken = default)
+    public async Task<Result<TransactionAccountDto>> UpdateAsync(UpdateTransactionAccountDto updateDto, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        logger.Information("Обновление счета: {@UpdateDto}", updateDto);
+
+        var account = await accountRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
+        if (account is null)
+        {
+            logger.Warning("Счет с идентификатором {AccountId} не найден для обновления", updateDto.Id);
+            return Result.Fail(errorsFactory.NotFound(updateDto.Id));
+        }
+        
+        await unitOfWork.CommitAsync(cancellationToken);
+        logger.Information("Счет {AccountId} успешно обновлен", updateDto.Id);
+        
+        return Result.Ok(account.ToDto());
     }
 
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)

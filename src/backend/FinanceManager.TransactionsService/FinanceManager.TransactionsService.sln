@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.Transactions
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.TransactionsService.Implementations", "FinanceManager.TransactionsService.Implementations\FinanceManager.TransactionsService.Implementations.csproj", "{5F4C6CE4-0455-4F72-9426-A040071456AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.TransactionsService.EntityFramework", "FinanceManager.TransactionsService.EntityFramework\FinanceManager.TransactionsService.EntityFramework.csproj", "{5794E376-FBA1-4CE2-AF6D-E8AD6FBA6C6A}"
+EndProject
 
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,9 +40,13 @@ Global
 		{5F4C6CE4-0455-4F72-9426-A040071456AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F4C6CE4-0455-4F72-9426-A040071456AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{52433DB1-8D7D-4127-BF80-C140616A07A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-    	{52433DB1-8D7D-4127-BF80-C140616A07A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-    	{52433DB1-8D7D-4127-BF80-C140616A07A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-    	{52433DB1-8D7D-4127-BF80-C140616A07A0}.Release|Any CPU.Build.0 = Release|Any CPU
+					{52433DB1-8D7D-4127-BF80-C140616A07A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+					{52433DB1-8D7D-4127-BF80-C140616A07A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+					{52433DB1-8D7D-4127-BF80-C140616A07A0}.Release|Any CPU.Build.0 = Release|Any CPU
 
+		{5794E376-FBA1-4CE2-AF6D-E8AD6FBA6C6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5794E376-FBA1-4CE2-AF6D-E8AD6FBA6C6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5794E376-FBA1-4CE2-AF6D-E8AD6FBA6C6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5794E376-FBA1-4CE2-AF6D-E8AD6FBA6C6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
