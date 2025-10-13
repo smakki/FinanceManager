@@ -7,7 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Quartz" Version="3.15.0" />
+        <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.15.0" />
+        <PackageReference Include="Quartz.Extensions.Hosting" Version="3.15.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FinanceManager.TransactionsService.Abstractions\FinanceManager.TransactionsService.Abstractions.csproj" />
+      <ProjectReference Include="..\FinanceManager.TransactionsService.Implementations\FinanceManager.TransactionsService.Implementations.csproj" />
     </ItemGroup>
 
 </Project>
