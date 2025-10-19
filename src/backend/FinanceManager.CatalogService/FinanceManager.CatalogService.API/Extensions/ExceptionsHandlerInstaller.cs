@@ -1,6 +1,9 @@
-﻿using FinanceManager.CatalogService.API.Middleware.ExceptionHandlers;
+﻿using System;
+using System.Collections.Generic;
+using FinanceManager.CatalogService.API.Middleware.ExceptionHandlers;
 using FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Abstractions;
 using FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Implementations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceManager.CatalogService.API.Extensions;
 

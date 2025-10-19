@@ -4,6 +4,9 @@ using FinanceManager.CatalogService.Implementations.Errors;
 using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
 using FinanceManager.CatalogService.Implementations.Services;
 using FinanceManager.CatalogService.Repositories.Implementations;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace FinanceManager.CatalogService.API.Extensions;

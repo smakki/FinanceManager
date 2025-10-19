@@ -1,4 +1,6 @@
-﻿using Serilog.Context;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Serilog.Context;
 
 namespace FinanceManager.CatalogService.API.Middleware;
 

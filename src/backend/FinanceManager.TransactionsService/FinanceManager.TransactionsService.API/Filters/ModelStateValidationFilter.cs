@@ -1,9 +1,9 @@
-﻿using System.Linq;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using ILogger = Serilog.ILogger;
+using Serilog;
 
-namespace FinanceManager.CatalogService.API.Controllers.Filters;
+namespace FinanceManager.TransactionsService.API.Filters;
 
 /// <summary>
 /// Фильтр действий для автоматической валидации ModelState.

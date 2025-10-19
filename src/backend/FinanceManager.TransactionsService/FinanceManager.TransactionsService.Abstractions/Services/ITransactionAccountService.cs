@@ -1,5 +1,4 @@
-﻿using FinanceManager.TransactionsService.Contracts.DTOs.AccountTypes;
-using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
+﻿using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
 using FluentResults;
 
 namespace FinanceManager.TransactionsService.Abstractions.Services;

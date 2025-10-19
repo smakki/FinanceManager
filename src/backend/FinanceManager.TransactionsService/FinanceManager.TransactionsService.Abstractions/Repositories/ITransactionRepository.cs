@@ -1,5 +1,4 @@
 ﻿using FinanceManager.TransactionsService.Abstractions.Repositories.Common;
-using FinanceManager.TransactionsService.Contracts.DTOs.Abstractions;
 using FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
 using FinanceManager.TransactionsService.Domain.Entities;
 

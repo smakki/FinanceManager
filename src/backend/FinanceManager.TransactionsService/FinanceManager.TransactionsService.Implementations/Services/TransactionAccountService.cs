@@ -2,7 +2,6 @@ using FinanceManager.TransactionsService.Abstractions.Errors;
 using FinanceManager.TransactionsService.Abstractions.Repositories;
 using FinanceManager.TransactionsService.Abstractions.Repositories.Common;
 using FinanceManager.TransactionsService.Abstractions.Services;
-using FinanceManager.TransactionsService.Contracts.DTOs.AccountTypes;
 using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
 using FluentResults;
 using Serilog;

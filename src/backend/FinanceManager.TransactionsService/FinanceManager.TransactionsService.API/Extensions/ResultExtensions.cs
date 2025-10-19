@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FinanceManager.CatalogService.API.Extensions;
+namespace FinanceManager.TransactionsService.API.Extensions;
 
 /// <summary>
 /// Extension методы для преобразования Result в ActionResult

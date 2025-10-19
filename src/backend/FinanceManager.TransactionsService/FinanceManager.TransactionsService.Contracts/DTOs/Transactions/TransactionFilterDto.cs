@@ -1,6 +1,4 @@
 ﻿using FinanceManager.TransactionsService.Contracts.DTOs.Abstractions;
-using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
-using FinanceManager.TransactionsService.Contracts.DTOs.TransactionsCategories;
 
 namespace FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
 

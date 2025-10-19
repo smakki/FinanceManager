@@ -1,6 +1,7 @@
 ﻿using FinanceManager.TransactionsService.Abstractions.Services;
 using FinanceManager.TransactionsService.Implementations.Jobs;
 using FinanceManager.TransactionsService.Implementations.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Spi;
 

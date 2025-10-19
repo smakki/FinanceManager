@@ -11,7 +11,6 @@ namespace FinanceManager.TransactionsService.Implementations.Services;
 public class TransferService(IUnitOfWork unitOfWork,
     ITransactionAccountService transactionAccountService,
     ITransferRepository transferRepository,
-    ITransactionAccountRepository accountRepository,
     ITransferErrorsFactory errorsFactory,
     ILogger logger) : ITransferService
 {

@@ -1,4 +1,8 @@
-﻿using FinanceManager.CatalogService.Abstractions.Services;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using FinanceManager.CatalogService.Abstractions.Services;
 using FinanceManager.CatalogService.API.Extensions;
 using FinanceManager.CatalogService.Contracts.DTOs.Categories;
 using Microsoft.AspNetCore.Mvc;

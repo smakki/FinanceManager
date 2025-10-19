@@ -1,17 +1,13 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using FinanceManager.CatalogService.API.Controllers.Filters;
+using FinanceManager.TransactionsService.API.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+namespace FinanceManager.TransactionsService.API.Extensions;
 
-namespace FinanceManager.CatalogService.API.Extensions;
-
-/// <summary>
-/// Регистрирует Swagger, настраивает контроллеры, фильтры и общие настройки Web API.
-/// </summary>
 public static class WebApiConfigurationExtensions
 {
     /// <summary>

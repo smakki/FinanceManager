@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using FinanceManager.TransactionsService.Domain.Abstractions;
+﻿using FinanceManager.TransactionsService.Domain.Abstractions;
 
 namespace FinanceManager.TransactionsService.Abstractions.Repositories.Common;
 
