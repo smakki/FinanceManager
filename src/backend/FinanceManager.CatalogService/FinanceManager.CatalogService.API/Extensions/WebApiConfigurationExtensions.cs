@@ -1,6 +1,10 @@
-﻿using System.Reflection;
+﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using FinanceManager.CatalogService.API.Controllers.Filters;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 namespace FinanceManager.CatalogService.API.Extensions;

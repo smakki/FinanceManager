@@ -21,4 +21,9 @@ public interface ITransactionRepository: IBaseRepository<Transaction, Transactio
     /// Проверяет, принадлежит ли транзакция указанному пользователю
     /// </summary>
     Task<bool> BelongsToUserAsync(Guid transactionId, Guid userId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Получает общее количество транзакций по фильтру
+    /// </summary>
+    Task<int> GetCountAsync(TransactionFilterDto filter, CancellationToken cancellationToken = default);
 }

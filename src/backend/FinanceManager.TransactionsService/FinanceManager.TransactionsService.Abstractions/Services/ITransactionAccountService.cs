@@ -19,13 +19,7 @@ public interface ITransactionAccountService
     Task<Result<ICollection<TransactionAccountDto>>> GetPagedAsync(
         TransactionAccountFilterDto filter,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Получает все счета пользователя
-    /// </summary>
-    Task<Result<ICollection<TransactionAccountDto>>> GetByHolderIdAsync(
-        Guid holderId,
-        CancellationToken cancellationToken = default);
+    
 
     /// <summary>
     /// Создаёт новый счёт
@@ -47,20 +41,10 @@ public interface ITransactionAccountService
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Проверяет, принадлежит ли счёт указанному пользователю
+    /// Проверяет возможность использования счета
     /// </summary>
-    Task<Result<bool>> BelongsToUserAsync(Guid accountId, Guid userId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет, не превышает ли сумма кредитный лимит счёта
-    /// </summary>
-    Task<Result<bool>> IsWithinCreditLimitAsync(
-        Guid accountId,
-        decimal amount,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Получает тип счёта
-    /// </summary>
-    Task<Result<AccountTypeDto>> GetAccountTypeAsync(Guid accountId, CancellationToken cancellationToken = default);
+    /// <param name="accountId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Result> CheckAccountAsync(Guid accountId, CancellationToken cancellationToken);
 }

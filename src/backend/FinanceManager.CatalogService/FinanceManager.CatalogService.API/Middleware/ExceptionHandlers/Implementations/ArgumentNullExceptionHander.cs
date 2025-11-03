@@ -1,4 +1,6 @@
-﻿using FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Abstractions;
+﻿using System;
+using FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Abstractions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ILogger = Serilog.ILogger;
 

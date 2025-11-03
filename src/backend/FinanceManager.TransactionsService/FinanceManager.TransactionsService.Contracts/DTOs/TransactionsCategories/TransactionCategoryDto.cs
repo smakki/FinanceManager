@@ -1,4 +1,3 @@
-using FinanceManager.TransactionsService.Contracts.DTOs.TransactionHolders;
 using FinanceManager.TransactionsService.Domain.Entities;
 
 namespace FinanceManager.TransactionsService.Contracts.DTOs.TransactionsCategories;
