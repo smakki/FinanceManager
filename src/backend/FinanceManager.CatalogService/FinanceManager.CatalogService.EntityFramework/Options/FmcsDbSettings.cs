@@ -36,6 +36,8 @@ public class FmcsDbSettings
     /// <returns>Строка подключения к базе данных.</returns>
     public string GetConnectionString()
     {
+        Console.WriteLine($"ConnectionString: {Host}:{Port}:{Database}:{Username}:{Password}");
         return $"Host={Host};Port={Port};Database={Database};Username={Username};Password={Password}";
+        
     }
 }

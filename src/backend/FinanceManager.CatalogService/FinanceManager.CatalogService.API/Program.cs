@@ -1,10 +1,11 @@
+using DotNetEnv;
 using FinanceManager.CatalogService.API.Extensions;
 using FinanceManager.CatalogService.API.Middleware;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.EntityFramework.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Env.Load();
 // Add services to the container.
 builder.Host.AddLogging(builder.Configuration);
 builder.Services

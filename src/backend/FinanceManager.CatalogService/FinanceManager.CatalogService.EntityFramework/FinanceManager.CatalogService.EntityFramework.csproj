@@ -49,4 +49,16 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Seeding\Data\Resources\banks.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Seeding\Data\Resources\countries.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Seeding\Data\Resources\currencies.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
