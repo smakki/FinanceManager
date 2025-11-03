@@ -45,7 +45,7 @@ public static class WebApiConfigurationExtensions
                 options.IncludeXmlComments(xmlPath);
             }
 
-            options.EnableAnnotations();
+            //options.EnableAnnotations();
         });
         return services;
     }

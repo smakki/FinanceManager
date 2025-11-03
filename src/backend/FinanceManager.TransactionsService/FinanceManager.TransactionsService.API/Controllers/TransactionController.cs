@@ -23,4 +23,25 @@ public class TransactionController(ILogger logger, ITransactionService transacti
         var result = await transactionService.GetPagedAsync(filter, cancellationToken);
         return result.ToActionResult(this);
     }
+    
+    [HttpPost(Name = "PostTransactions")]
+    public async Task<ActionResult<TransactionDto>> Create(
+        [FromQuery] CreateTransactionDto createDto,
+        CancellationToken cancellationToken = default)
+    {
+        logger.Information("Запрос списка владельцев справочников с фильтрацией: {@CreateDto}", createDto);
+        var result = await transactionService.CreateAsync(createDto, cancellationToken);
+        return result.ToActionResult(this);
+    }
+    
+    [HttpPost(Name = "PatchTransactions")]
+    public async Task<ActionResult<TransactionDto>> Update(
+        [FromQuery] UpdateTransactionDto updateDto,
+        CancellationToken cancellationToken = default)
+    {
+        logger.Information("Запрос списка владельцев справочников с фильтрацией: {@UpdateDto}", updateDto);
+        var result = await transactionService.UpdateAsync(updateDto, cancellationToken);
+        return result.ToActionResult(this);
+    }
+    
 }
