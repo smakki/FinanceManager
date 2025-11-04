@@ -1,0 +1,36 @@
+﻿services:
+  db:
+    image: postgres:16
+    command: ["postgres", "-p", "5434"]
+    restart: always
+    environment:
+      POSTGRES_DB: ${FmcsDbSettings__Database}
+      POSTGRES_USER: ${FmcsDbSettings__Username}
+      POSTGRES_PASSWORD: ${FmcsDbSettings__Password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "55433:5434"
+
+  catalog-service:
+    build:
+      context: .
+      dockerfile: FinanceManager.TransactionsService.API/Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "8082:8082"
+      - "8083:8083"
+      - "5024:5024"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      FmcsDbSettings__Host: db
+      FmcsDbSettings__Port: ${FmcsDbSettings__Port}
+      FmcsDbSettings__Database: ${FmcsDbSettings__Database}
+      FmcsDbSettings__Username: ${FmcsDbSettings__Username}
+      FmcsDbSettings__Password: ${FmcsDbSettings__Password}
+      ASPNETCORE_HTTP_PORTS: ${ASPNETCORE_HTTP_PORTS}
+    restart: always
+
+volumes:
+  postgres_data:

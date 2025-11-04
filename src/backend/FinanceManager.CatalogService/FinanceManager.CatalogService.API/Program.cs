@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.API.Middleware;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.EntityFramework.Seeding;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -28,6 +29,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.MapGet("/", () => Results.Redirect("/swagger"));
     app.UseStaticFiles();
     app.UseSwagger();
     app.UseSwaggerUI();
