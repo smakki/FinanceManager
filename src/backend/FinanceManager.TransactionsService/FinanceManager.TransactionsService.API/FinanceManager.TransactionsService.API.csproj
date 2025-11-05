@@ -31,6 +31,7 @@
     <ItemGroup>
       <ProjectReference Include="..\FinanceManager.TransactionsService.Abstractions\FinanceManager.TransactionsService.Abstractions.csproj" />
       <ProjectReference Include="..\FinanceManager.TransactionsService.Implementations\FinanceManager.TransactionsService.Implementations.csproj" />
+      <ProjectReference Include="..\FinanceManager.TransactionsService.Repositories\FinanceManager.TransactionsService.Repositories.csproj" />
     </ItemGroup>
 
     <ItemGroup>

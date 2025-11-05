@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 
-namespace FinanceManager.TransactionsService.Implementations.Errors.Abstractions;
+namespace FinanceManager.TransactionsService.Abstractions.Errors;
 
 /// <summary>
 /// Интерфейс фабрики ошибок, связанных с сущностью "Transaction"

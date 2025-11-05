@@ -52,8 +52,9 @@ public interface IBaseRepository<T, in TFilterDto> where T:IdentityModel
     /// Обновляет существующую сущность
     /// </summary>
     /// <param name="entity">Сущность для обновления</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Обновленная сущность</returns>
-    T Update(T entity);
+    Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
     
 
     /// <summary>

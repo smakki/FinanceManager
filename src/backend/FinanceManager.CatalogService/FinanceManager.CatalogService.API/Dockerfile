@@ -19,6 +19,8 @@ COPY FinanceManager.CatalogService.EntityFramework/FinanceManager.CatalogService
 COPY FinanceManager.CatalogService.Implementations/FinanceManager.CatalogService.Implementations.csproj FinanceManager.CatalogService.Implementations/
 COPY FinanceManager.CatalogService.Repositories/FinanceManager.CatalogService.Repositories.csproj FinanceManager.CatalogService.Repositories/
 
+
+ENV DOTNET_SYSTEM_NET_HTTP_DISABLE_CERTIFICATE_VALIDATION=1
 # Восстанавливаем зависимости
 RUN dotnet restore FinanceManager.CatalogService.API/FinanceManager.CatalogService.API.csproj
 

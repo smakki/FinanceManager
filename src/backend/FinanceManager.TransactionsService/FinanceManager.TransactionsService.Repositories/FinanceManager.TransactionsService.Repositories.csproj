@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FinanceManager.TransactionsService.Abstractions\FinanceManager.TransactionsService.Abstractions.csproj" />
+      <ProjectReference Include="..\FinanceManager.TransactionsService.EntityFramework\FinanceManager.TransactionsService.EntityFramework.csproj" />
+      <ProjectReference Include="..\FinanceManager.TransactionsService.Implementations\FinanceManager.TransactionsService.Implementations.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="4.3.0" />
+    </ItemGroup>
+
+</Project>

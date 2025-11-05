@@ -1,3 +1,6 @@
+using FinanceManager.TransactionsService.API.Extensions;
+using FinanceManager.TransactionsService.EntityFramework;
+using FinanceManager.TransactionsService.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +13,10 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         
+        builder.Host.AddLogging(builder.Configuration);
+        builder.Services.AddApplication(builder.Configuration);
+        builder.Services.AddTransactionDataLoaderJob();
+        builder.Services.AddDatabase(builder.Configuration, builder.Environment.IsDevelopment());
         builder.Services.AddControllers();
 
         builder.Services.AddEndpointsApiExplorer();

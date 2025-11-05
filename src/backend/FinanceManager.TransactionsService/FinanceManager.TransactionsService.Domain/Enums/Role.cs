@@ -15,4 +15,6 @@ public enum Role
     /// Администратор системы с расширенными правами управления
     /// </summary>
     Administrator
+    
 }
+

@@ -24,25 +24,4 @@ public interface ITransferErrorsFactory
     /// <returns>Экземпляр ошибки</returns>
     IError AccountNotFound(Guid accountId);
 
-    /// <summary>
-    /// Создаёт ошибку, если счёт, участвующий в переводе, был мягко удалён
-    /// </summary>
-    /// <param name="accountId">Идентификатор счёта</param>
-    /// <returns>Экземпляр ошибки</returns>
-    IError AccountIsSoftDeleted(Guid accountId);
-
-    /// <summary>
-    /// Создаёт ошибку, если счёт, участвующий в переводе, архивирован
-    /// </summary>
-    /// <param name="accountId">Идентификатор счёта</param>
-    /// <returns>Экземпляр ошибки</returns>
-    IError AccountIsArchived(Guid accountId);
-    
-    /// <summary>
-    /// Создаёт ошибку, если перевод не принадлежит указанному пользователю
-    /// </summary>
-    /// <param name="transactionId">Идентификатор перевода</param>
-    /// <param name="userId">Идентификатор пользователя</param>
-    /// <returns>Экземпляр ошибки</returns>
-    IError TransferNotBelongsToUser(Guid transactionId, Guid userId);
 }

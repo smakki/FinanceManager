@@ -141,7 +141,7 @@ public class TransferService(IUnitOfWork unitOfWork,
 
         if (isNeedUpdate)
         {
-            transferRepository.Update(transfer);
+            await transferRepository.UpdateAsync(transfer, cancellationToken);
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated transfer: {TransferId}", updateDto.Id);
         }

@@ -1,8 +1,8 @@
-﻿using FinanceManager.TransactionsService.Abstractions.Repositories;
+﻿using FinanceManager.TransactionsService.Abstractions.Errors;
+using FinanceManager.TransactionsService.Abstractions.Repositories;
 using FinanceManager.TransactionsService.Abstractions.Repositories.Common;
 using FinanceManager.TransactionsService.Abstractions.Services;
 using FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
-using FinanceManager.TransactionsService.Implementations.Errors.Abstractions;
 using FluentResults;
 using Serilog;
 
@@ -163,7 +163,7 @@ public class TransactionService(
 
         if (isNeedUpdate)
         {
-            transactionRepository.Update(transaction);
+            await transactionRepository.UpdateAsync(transaction, cancellationToken);
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated transaction: {TransactionId}", updateDto.Id);
         }
