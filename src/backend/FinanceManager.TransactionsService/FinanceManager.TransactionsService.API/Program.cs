@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using FinanceManager.TransactionsService.API.Extensions;
 using FinanceManager.TransactionsService.EntityFramework;
 using FinanceManager.TransactionsService.Repositories;
@@ -7,9 +8,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace FinanceManager.TransactionsService.API;
 
-public class Program
+public static class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         
@@ -34,7 +35,7 @@ public class Program
 
         app.UseAuthorization();
 
-
+        await app.UseMigrationAsync();
         app.MapControllers();
 
         app.Run();

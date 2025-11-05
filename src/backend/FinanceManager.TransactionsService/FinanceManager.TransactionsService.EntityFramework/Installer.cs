@@ -3,6 +3,7 @@ using FinanceManager.TransactionsService.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace FinanceManager.TransactionsService.EntityFramework;
@@ -37,5 +38,21 @@ public static class Installer
         });
 
         return services;
+    }
+    
+    /// <summary>
+    /// Применяет все ожидающие миграции базы данных для контекста DatabaseContext
+    /// </summary>
+    /// <param name="host">Экземпляр IHost, содержащий конфигурацию приложения и сервисы</param>
+    /// <returns>
+    /// Возвращает тот же экземпляр IHost для поддержки цепочки вызовов.
+    /// Задача завершается после применения всех миграций.
+    /// </returns>
+    public static async Task<IHost> UseMigrationAsync(this IHost host)
+    {
+        using var scope = host.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+        await dbContext.Database.MigrateAsync();
+        return host;
     }
 }
