@@ -13,11 +13,11 @@ public static class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+        builder.Services.AddDatabase(builder.Configuration, builder.Environment.IsDevelopment());
         builder.Host.AddLogging(builder.Configuration);
         builder.Services.AddApplication(builder.Configuration);
         builder.Services.AddTransactionDataLoaderJob();
-        builder.Services.AddDatabase(builder.Configuration, builder.Environment.IsDevelopment());
+
         builder.Services.AddControllers();
 
         builder.Services.AddEndpointsApiExplorer();
