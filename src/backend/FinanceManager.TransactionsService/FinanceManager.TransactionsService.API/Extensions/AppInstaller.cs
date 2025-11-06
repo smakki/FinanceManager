@@ -48,7 +48,7 @@ public static class AppInstaller
     {
         services.AddHttpClient<ICatalogApiClient, CatalogApiClient>(client =>
         {
-            var baseUrl = configuration["ExternalApis:CatalogService:Url"] ?? "http://localhost:8082";
+            var baseUrl = configuration["ExternalApis:CatalogService:Url"] ?? "http://localhost:8080";
             client.BaseAddress = new Uri(baseUrl);
             client.Timeout = TimeSpan.FromSeconds(30);
         });

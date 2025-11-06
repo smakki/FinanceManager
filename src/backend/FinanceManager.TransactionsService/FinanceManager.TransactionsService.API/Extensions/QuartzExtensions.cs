@@ -15,14 +15,14 @@ public static class QuartzExtensions
 
         services.AddQuartz(q =>
         {
-            //q.UseMicrosoftDependencyInjectionScopedJobFactory();
+            
 
             var jobKey = new JobKey(nameof(ExternalDataLoaderJob));
             q.AddJob<ExternalDataLoaderJob>(opts => opts.WithIdentity(jobKey));
             q.AddTrigger(opts => opts
                 .ForJob(jobKey)
                 .WithIdentity($"{nameof(ExternalDataLoaderJob)}-trigger")
-                .WithSimpleSchedule(x => x.WithIntervalInHours(1).RepeatForever()));
+                .WithSimpleSchedule(x => x.WithIntervalInMinutes(1).RepeatForever()));
         });
 
         services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

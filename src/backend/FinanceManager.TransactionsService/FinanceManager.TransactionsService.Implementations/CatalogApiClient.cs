@@ -1,4 +1,6 @@
 ﻿using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FinanceManager.TransactionsService.Abstractions;
 using FinanceManager.TransactionsService.Contracts.DTOs.TransactionHolders;
 using FinanceManager.TransactionsService.Implementations.Errors;
@@ -20,12 +22,16 @@ public class CatalogApiClient(HttpClient httpClient, ILogger<CatalogApiClient> l
 
             // Используем query параметры для получения большого количества записей
             var response = await _httpClient.GetAsync(
-                "/api/v1/RegistryHolder?Take=1000", 
+                "/api/v1/RegistryHolder?ItemsPerPage=1000&Page=1", 
                 cancellationToken);
 
             response.EnsureSuccessStatusCode();
-
-            var holders = await response.Content.ReadFromJsonAsync<List<TransactionHolderDto>>(
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new JsonStringEnumConverter() },
+                PropertyNameCaseInsensitive = true
+            };
+            var holders = await response.Content.ReadFromJsonAsync<List<TransactionHolderDto>>(options,
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Получено {Count} RegistryHolders", holders?.Count ?? 0);
