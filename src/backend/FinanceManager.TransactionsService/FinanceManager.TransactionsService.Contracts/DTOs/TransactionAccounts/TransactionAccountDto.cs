@@ -6,19 +6,21 @@ using FinanceManager.TransactionsService.Domain.Entities;
 namespace FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
 
 /// <summary>
-/// DTO для банковского счета пользователя
+/// DTO для банковского или финансового счёта пользователя
 /// </summary>
 /// <param name="Id">Идентификатор счета</param>
-/// <param name="Holder">Владелец счета</param>
 /// <param name="AccountType">Тип счета</param>
 /// <param name="Currency">Валюта счета</param>
-/// <param name="CreditLimit">Кредитный лимит счета</param>
+/// <param name="Holder">Владелец счета</param>
+/// <param name="CreditLimit">Кредитный лимит (nullable)</param>
+/// <param name="IsArchived">Флаг архивирования счета</param>
 public record TransactionAccountDto(
     Guid Id,
     AccountTypeDto AccountType,
     TransactionCurrencyDto Currency,
     TransactionHolderDto Holder,
-    decimal CreditLimit
+    decimal? CreditLimit,
+    bool IsArchived
 );
 
 /// <summary>
@@ -38,7 +40,8 @@ public static class TransactionAccountDtoExtensions
             account.AccountType.ToDto(),
             account.Currency.ToDto(),
             account.Holder.ToDto(),
-            account.CreditLimit ?? 0m
+            account.CreditLimit,      // теперь nullable
+            account.IsArchived
         );
     }
 

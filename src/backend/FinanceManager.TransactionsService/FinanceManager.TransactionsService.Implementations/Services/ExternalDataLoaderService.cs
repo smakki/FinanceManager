@@ -21,93 +21,133 @@ public class ExternalDataLoaderService(
     ILogger logger)
     : IExternalDataLoaderService
 {
-    private readonly ITransactionAccountRepository _accountRepository = accountRepository;
-    private readonly IAccountTypeRepository _accountTypeRepository = accountTypeRepository;
-    private readonly ITransactionCategoryRepository _categoryRepository = categoryRepository;
-    private readonly ITransactionCurrencyRepository _currencyRepository = currencyRepository;
-    
     private readonly SemaphoreSlim _holderLoadLock = new SemaphoreSlim(1, 1);
     private readonly SemaphoreSlim _accountLoadLock = new SemaphoreSlim(1, 1);
     private readonly SemaphoreSlim _accountTypeLoadLock = new SemaphoreSlim(1, 1);
     private readonly SemaphoreSlim _categoryLoadLock = new SemaphoreSlim(1, 1);
     private readonly SemaphoreSlim _currencyLoadLock = new SemaphoreSlim(1, 1);
+    
     public async Task LoadTransactionHoldersAsync(CancellationToken cancellationToken)
     {
-        logger.Information("Начало загрузки TransactionHolders (RegistryHolders)");
-        await _holderLoadLock.WaitAsync(cancellationToken);
-        
-        try
-        {
-            logger.Debug("Семафор захвачен, начинается загрузка данных");
-            
-            var holders = await catalogApiClient.GetAllTransactionHoldersAsync(cancellationToken);
-
-            if (holders == null || !holders.Any())
+        await LoadEntitiesAsync(
+            semaphore: _holderLoadLock,
+            fetchFromApiAsync: catalogApiClient.GetAllTransactionHoldersAsync,
+            repository: holderRepository,
+            getId: dto => dto.Id,
+            createEntity: dto => new TransactionHolder(dto.Role, dto.TelegramId)
             {
-                logger.Warning("Внешний API не вернул данные RegistryHolders");
-                return;
-            }
-
-            logger.Information("Получено {Count} записей RegistryHolders для сохранения", holders.Count());
-            
-            foreach (var holderDto in holders)
+                Id = dto.Id,
+                CreatedAt = DateTime.UtcNow
+            },
+            updateEntity: (entity, dto) =>
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                
-                var existingHolder = await holderRepository.GetByIdAsync(holderDto.Id, cancellationToken :cancellationToken);
-
-                if (existingHolder == null)
-                {
-                    var newHolder = new TransactionHolder(
-                        role: holderDto.Role,
-                        telegramId: holderDto.TelegramId)
-                    {
-                        Id = holderDto.Id,
-                        CreatedAt = DateTime.UtcNow
-                    };
-
-                    await holderRepository.AddAsync(newHolder, cancellationToken);
-                    logger.Debug("Добавлен новый TransactionHolder: {Id}", holderDto.Id);
-                }
-                else
-                {
-                    existingHolder.TelegramId = holderDto.TelegramId;
-                    existingHolder.Role = holderDto.Role;
-
-                    await holderRepository.UpdateAsync(existingHolder, cancellationToken);
-                    logger.Debug("Обновлен TransactionHolder: {Id}", holderDto.Id);
-                }
-            }
-            await unitOfWork.CommitAsync(cancellationToken);
-            logger.Information("Успешно загружено и сохранено {Count} TransactionHolders", holders.Count());
-        }
-        catch (OperationCanceledException)
-        {
-            logger.Warning("Загрузка TransactionHolders была отменена");
-            throw;
-        }
-        catch (ExternalApiException ex)
-        {
-            logger.Error(ex, "Ошибка при обращении к внешнему API");
-            throw;
-        }
-        catch (Exception ex)
-        {
-            logger.Error(ex, "Неожиданная ошибка при загрузке TransactionHolders");
-            throw;
-        }
-        finally
-        {
-            _holderLoadLock.Release();
-            logger.Debug("Семафор освобожден");
-        }
-
+                entity.Role = dto.Role;
+                entity.TelegramId = dto.TelegramId;
+            },
+            entityName: "TransactionHolder",
+            cancellationToken: cancellationToken
+        );
     }
 
-    public async Task LoadTransactionsAccountsAsync(CancellationToken cancellationToken) { /* аналогично */ }
-    public async Task LoadAccountTypesAsync(CancellationToken cancellationToken) { /* аналогично */ }
-    public async Task LoadCategoriesAsync(CancellationToken cancellationToken) { /* аналогично */ }
-    public async Task LoadCurrenciesAsync(CancellationToken cancellationToken) { /* аналогично */ }
+    public async Task LoadTransactionsAccountsAsync(CancellationToken cancellationToken)
+    {
+        await LoadEntitiesAsync(
+            semaphore: _accountLoadLock,
+            fetchFromApiAsync: catalogApiClient.GetAllTransactionAccountsAsync,
+            repository: accountRepository,
+            getId: dto => dto.Id,
+            createEntity: dto => new TransactionsAccount(
+                accountTypeId: dto.AccountTypeId,
+                currencyId: dto.CurrencyId,
+                holderId: dto.HolderId,
+                creditLimit: dto.CreditLimit)
+            {
+                Id = dto.Id,
+                CreatedAt = DateTime.UtcNow
+            },
+            updateEntity: (entity, dto) =>
+            {
+                entity.AccountTypeId = dto.AccountTypeId;
+                entity.CurrencyId = dto.CurrencyId;
+                entity.HolderId = dto.HolderId;
+                entity.IsArchived = dto.IsArchived;
+                entity.CreditLimit = dto.CreditLimit;
+            },
+            entityName: "TransactionAccount",
+            cancellationToken: cancellationToken
+        );
+    }
+
+
+    public async Task LoadAccountTypesAsync(CancellationToken cancellationToken)
+    {
+        await LoadEntitiesAsync(
+            semaphore: _accountTypeLoadLock,
+            fetchFromApiAsync: catalogApiClient.GetAllAccountTypesAsync,
+            repository: accountTypeRepository,
+            getId: dto => dto.Id,
+            createEntity: dto => new TransactionsAccountType(dto.Code, dto.Description)
+            {
+                Id = dto.Id,
+                CreatedAt = DateTime.UtcNow
+            },
+            updateEntity: (entity, dto) =>
+            {
+                entity.Code = dto.Code;
+                entity.Description = dto.Description;
+            },
+            entityName: "TransactionsAccountType",
+            cancellationToken: cancellationToken
+        );
+    }
+
+    public async Task LoadCategoriesAsync(CancellationToken cancellationToken)
+    {
+        await LoadEntitiesAsync(
+            semaphore: _categoryLoadLock,
+            fetchFromApiAsync: catalogApiClient.GetAllCategoriesAsync,
+            repository: categoryRepository,
+            getId: dto => dto.Id,
+            createEntity: dto => new TransactionsCategory(dto.HolderId, dto.Income, dto.Expense)
+            {
+                Id = dto.Id,
+                CreatedAt = DateTime.UtcNow
+            },
+            updateEntity: (entity, dto) =>
+            {
+                entity.HolderId = dto.HolderId;
+                entity.Income = dto.Income;
+                entity.Expense = dto.Expense;
+            },
+            entityName: "TransactionCategory",
+            cancellationToken: cancellationToken
+        );
+    }
+
+
+    public async Task LoadCurrenciesAsync(CancellationToken cancellationToken)
+    {
+        await LoadEntitiesAsync(
+            semaphore: _currencyLoadLock,
+            fetchFromApiAsync: catalogApiClient.GetAllCurrenciesAsync,
+            repository: currencyRepository,
+            getId: dto => dto.Id,
+            createEntity: dto => new TransactionsCurrency(dto.CharCode, dto.NumCode)
+            {
+                Id = dto.Id,
+                CreatedAt = DateTime.UtcNow
+            },
+            updateEntity: (entity, dto) =>
+            {
+                entity.CharCode = dto.CharCode;
+                entity.NumCode = dto.NumCode;
+            },
+            entityName: "TransactionCurrency",
+            cancellationToken: cancellationToken
+        );
+    }
+
+
     
 private async Task LoadEntitiesAsync<TDto, TEntity, TFilter>(
     SemaphoreSlim semaphore,
