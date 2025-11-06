@@ -1,0 +1,44 @@
+[
+  {
+    "Id": "a2b4f19f-51d1-4e5a-9f8d-4c74a0e37f7b",
+    "Code": "CASH",
+    "Description": "Наличные средства",
+    "IsDeleted": false
+  },
+  {
+    "Id": "e46a6e3b-7751-4a68-8619-9e7e8f9c52a5",
+    "Code": "BANK",
+    "Description": "Банковский счет",
+    "IsDeleted": false
+  },
+  {
+    "Id": "9d26b24f-9182-4cb3-954b-3a9d5a444a1b",
+    "Code": "CARD",
+    "Description": "Платёжная карта",
+    "IsDeleted": false
+  },
+  {
+    "Id": "4b1b65db-8a94-43c2-9f2b-2277ac0a865c",
+    "Code": "CREDIT",
+    "Description": "Кредитный счёт",
+    "IsDeleted": false
+  },
+  {
+    "Id": "1d7e2d2d-b1e7-4a0e-9f15-3c9a55305a5b",
+    "Code": "SAVINGS",
+    "Description": "Сберегательный счёт",
+    "IsDeleted": false
+  },
+  {
+    "Id": "8b29e3a0-06e7-4761-9e8e-3208ef1e7c2c",
+    "Code": "BROKER",
+    "Description": "Брокерский счёт",
+    "IsDeleted": false
+  },
+  {
+    "Id": "f05d2452-5118-4b2e-9cb6-f5b63b82541c",
+    "Code": "CRYPTO",
+    "Description": "Криптокошелёк",
+    "IsDeleted": false
+  }
+]

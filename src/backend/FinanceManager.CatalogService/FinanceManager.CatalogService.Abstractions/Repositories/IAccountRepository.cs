@@ -8,7 +8,7 @@ namespace FinanceManager.CatalogService.Abstractions.Repositories;
 /// Интерфейс репозитория для работы с банковскими счетами
 /// </summary>
 public interface IAccountRepository :
-    IBaseRepository<Account, AccountFilterDto>
+    IBaseRepository<Account, AccountFilterDto>, IInitializerRepository<Account>
 {
     /// <summary>
     /// Получает общее количество счетов пользователя

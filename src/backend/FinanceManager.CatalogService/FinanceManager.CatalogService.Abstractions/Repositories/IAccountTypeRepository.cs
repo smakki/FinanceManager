@@ -7,7 +7,10 @@ namespace FinanceManager.CatalogService.Abstractions.Repositories;
 /// <summary>
 /// Интерфейс репозитория для работы с типами банковских счетов
 /// </summary>
-public interface IAccountTypeRepository : IBaseRepository<AccountType, AccountTypeFilterDto>, IDeletableValidator
+public interface IAccountTypeRepository : IBaseRepository<AccountType, AccountTypeFilterDto>,
+    IInitializerRepository<AccountType>,
+
+IDeletableValidator
 {
     /// <summary>
     /// Получает все типы счетов, включая удаленные

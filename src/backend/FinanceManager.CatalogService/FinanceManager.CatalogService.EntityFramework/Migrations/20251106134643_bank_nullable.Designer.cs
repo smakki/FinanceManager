@@ -3,6 +3,7 @@ using System;
 using FinanceManager.CatalogService.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinanceManager.CatalogService.EntityFramework.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20251106134643_bank_nullable")]
+    partial class bank_nullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,7 +34,7 @@ namespace FinanceManager.CatalogService.EntityFramework.Migrations
                     b.Property<Guid>("AccountTypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("BankId")
+                    b.Property<Guid>("BankId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -271,7 +274,9 @@ namespace FinanceManager.CatalogService.EntityFramework.Migrations
 
                     b.HasOne("FinanceManager.CatalogService.Domain.Entities.Bank", "Bank")
                         .WithMany()
-                        .HasForeignKey("BankId");
+                        .HasForeignKey("BankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FinanceManager.CatalogService.Domain.Entities.Currency", "Currency")
                         .WithMany()

@@ -1,0 +1,32 @@
+[
+  {
+    "Id": "1e1a1d2f-3c4b-4f5a-8a9b-1a2b3c4d5e6f",
+    "TelegramId": 123456789,
+    "Role": 0,
+    "IsDeleted": false
+  },
+  {
+    "Id": "2f2b2e3d-4d5c-5e6b-9c0d-2b3c4d5e6f7a",
+    "TelegramId": 987654321,
+    "Role": 1,
+    "IsDeleted": false
+  },
+  {
+    "Id": "3a3c3f4e-5e6d-6f7c-0d1e-3c4d5e6f7a8b",
+    "TelegramId": 555666777,
+    "Role": 2,
+    "IsDeleted": false
+  },
+  {
+    "Id": "4b4d4f5f-6f7e-7f8d-1e2f-4d5e6f7a8b9c",
+    "TelegramId": 111222333,
+    "Role": 0,
+    "IsDeleted": false
+  },
+  {
+    "Id": "5c5e5f6a-7f8b-8c9d-2f3e-5e6f7a8b9c0d",
+    "TelegramId": 444555666,
+    "Role": 1,
+    "IsDeleted": false
+  }
+]

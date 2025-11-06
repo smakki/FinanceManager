@@ -19,6 +19,62 @@ public class AccountTypeRepository(DatabaseContext context, ILogger logger)
     private readonly ILogger _logger = logger;
 
     /// <summary>
+/// Инициализирует репозиторий набором типов счетов, если он пуст или частично заполнен.
+/// </summary>
+/// <param name="entities">Коллекция типов счетов для инициализации.</param>
+/// <param name="cancellationToken">Токен отмены операции.</param>
+/// <returns>Количество добавленных записей.</returns>
+public async Task<int> InitializeAsync(IEnumerable<AccountType> entities,
+    CancellationToken cancellationToken = default)
+{
+    _logger.Information("Начинается инициализация типов счетов");
+
+    var accountTypesList = entities as ICollection<AccountType> ?? entities.ToList();
+    _logger.Debug("Подготовлено {AccountTypeCount} типов счетов для инициализации", accountTypesList.Count);
+
+    // Если таблица пуста — просто добавляем всё
+    if (!await Entities.AnyAsync(cancellationToken))
+    {
+        _logger.Debug("Таблица типов счетов пуста, добавляем все типы");
+        await Entities.AddRangeAsync(accountTypesList, cancellationToken);
+        var result = await _context.CommitAsync(cancellationToken);
+        _logger.Information("Инициализация завершена, добавлено {AddedCount} типов счетов", result);
+        return result;
+    }
+
+    _logger.Debug("Таблица типов счетов содержит данные, проверяем уникальность кодов");
+    var query = Entities.AsQueryable();
+    var addedCount = 0;
+
+    foreach (var entity in accountTypesList)
+    {
+        var exists = await query.AnyAsync(
+            a => string.Equals(a.Code, entity.Code, StringComparison.InvariantCultureIgnoreCase),
+            cancellationToken);
+
+        if (!exists)
+        {
+            await Entities.AddAsync(entity, cancellationToken);
+            addedCount++;
+            _logger.Debug("Добавлен тип счёта: {AccountTypeCode} ({Description})",
+                entity.Code, entity.Description);
+        }
+        else
+        {
+            _logger.Debug("Тип счёта {AccountTypeCode} уже существует, пропускаем",
+                entity.Code);
+        }
+    }
+
+    var commitResult = await _context.CommitAsync(cancellationToken);
+    _logger.Information("Инициализация завершена, добавлено {AddedCount} новых типов счетов из {TotalCount}",
+        addedCount, accountTypesList.Count);
+
+    return commitResult;
+}
+
+    
+    /// <summary>
     /// Применяет фильтры к запросу <see cref="AccountType"/> на основе переданного <paramref name="filter"/>.
     /// </summary>
     /// <param name="filter">DTO фильтра с критериями фильтрации.</param>

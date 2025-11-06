@@ -18,7 +18,7 @@ public class Account(
     Guid registryHolderId,
     Guid accountTypeId,
     Guid currencyId,
-    Guid bankId,
+    Guid? bankId,
     string name,
     bool isIncludeInBalance,
     bool isDefault,
@@ -59,12 +59,12 @@ public class Account(
     /// <summary>
     /// Идентификатор банка
     /// </summary>
-    public Guid BankId { get; set; } = bankId;
+    public Guid? BankId { get; set; } = bankId;
     
     /// <summary>
     /// Банк, в котором открыт счет
     /// </summary>
-    public Bank Bank { get; set; } = null!;
+    public Bank? Bank { get; set; } = null!;
 
     /// <summary>
     /// Название счета

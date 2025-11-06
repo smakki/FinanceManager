@@ -39,7 +39,6 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         
         builder.HasOne(a => a.Bank)
             .WithMany()
-            .HasForeignKey(a => a.BankId)
-            .IsRequired();
+            .HasForeignKey(a => a.BankId);
     }
 }

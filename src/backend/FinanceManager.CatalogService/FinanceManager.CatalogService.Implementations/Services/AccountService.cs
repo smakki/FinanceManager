@@ -574,19 +574,19 @@ public class AccountService(
     /// <param name="bankId">Идентификатор банка</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    private async Task<Result> CheckBankAsync(Guid bankId, CancellationToken cancellationToken)
+    private async Task<Result> CheckBankAsync(Guid? bankId, CancellationToken cancellationToken)
     {
+        if (bankId == null)
+            return Result.Ok(); // банк не указан — проверку пропускаем
+        
         logger.Debug("Проверка существования банка: {BankId}", bankId);
 
         var bank = await bankRepository.GetByIdAsync(
-            bankId, disableTracking: true, cancellationToken: cancellationToken);
-        if (bank is null)
-        {
-            logger.Warning("Банк {BankId} не найден", bankId);
-            return Result.Fail(errorsFactory.BankNotFound(bankId));
-        }
+            bankId.Value, disableTracking: true, cancellationToken: cancellationToken);
+        if (bank is not null) return Result.Ok();
+        logger.Warning("Банк {BankId} не найден", bankId);
+        return Result.Fail(errorsFactory.BankNotFound(bankId.Value));
 
-        return Result.Ok();
     }
 
     /// <summary>

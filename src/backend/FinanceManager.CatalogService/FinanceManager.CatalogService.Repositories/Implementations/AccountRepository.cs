@@ -19,6 +19,65 @@ public class AccountRepository(DatabaseContext context, ILogger logger)
     private readonly ILogger _logger = logger;
 
     /// <summary>
+/// Инициализирует репозиторий набором счетов, если он пуст или частично заполнен.
+/// </summary>
+/// <param name="entities">Коллекция счетов для инициализации.</param>
+/// <param name="cancellationToken">Токен отмены операции.</param>
+/// <returns>Количество добавленных записей.</returns>
+public async Task<int> InitializeAsync(IEnumerable<Account> entities,
+    CancellationToken cancellationToken = default)
+{
+    _logger.Information("Начинается инициализация счетов");
+
+    var accountsList = entities as ICollection<Account> ?? entities.ToList();
+    _logger.Debug("Подготовлено {AccountsCount} счетов для инициализации", accountsList.Count);
+
+    // Если таблица пуста — добавляем всё сразу
+    if (!await Entities.AnyAsync(cancellationToken))
+    {
+        _logger.Debug("Таблица счетов пуста, добавляем все счета");
+        await Entities.AddRangeAsync(accountsList, cancellationToken);
+        var result = await _context.CommitAsync(cancellationToken);
+        _logger.Information("Инициализация завершена, добавлено {AddedCount} счетов", result);
+        return result;
+    }
+
+    _logger.Debug("Таблица счетов содержит данные, проверяем уникальность счетов");
+    var query = Entities.AsQueryable();
+    var addedCount = 0;
+
+    foreach (var entity in accountsList)
+    {
+        // Уникальность проверяется по имени и владельцу (в рамках одного владельца имя счёта уникально)
+        var exists = await query.AnyAsync(
+            a =>
+                a.RegistryHolderId == entity.RegistryHolderId &&
+                string.Equals(a.Name, entity.Name, StringComparison.InvariantCultureIgnoreCase),
+            cancellationToken);
+
+        if (!exists)
+        {
+            await Entities.AddAsync(entity, cancellationToken);
+            addedCount++;
+            _logger.Debug("Добавлен счёт: {AccountName} (владелец {RegistryHolderId})",
+                entity.Name, entity.RegistryHolderId);
+        }
+        else
+        {
+            _logger.Debug("Счёт {AccountName} для владельца {RegistryHolderId} уже существует, пропускаем",
+                entity.Name, entity.RegistryHolderId);
+        }
+    }
+
+    var commitResult = await _context.CommitAsync(cancellationToken);
+    _logger.Information("Инициализация завершена, добавлено {AddedCount} новых счетов из {TotalCount}",
+        addedCount, accountsList.Count);
+
+    return commitResult;
+}
+
+    
+    /// <summary>
     /// Включает связанные сущности для запроса счетов: владельца справочника, тип счета, валюту и банк.
     /// </summary>
     private protected override IQueryable<Account> IncludeRelatedEntities(IQueryable<Account> query)

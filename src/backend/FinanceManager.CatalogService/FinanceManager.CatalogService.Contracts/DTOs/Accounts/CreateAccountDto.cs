@@ -17,7 +17,7 @@ public record CreateAccountDto(
     Guid RegistryHolderId,
     Guid AccountTypeId,
     Guid CurrencyId,
-    Guid BankId,
+    Guid? BankId,
     string Name,
     bool IsIncludeInBalance = false,
     bool IsDefault = false,

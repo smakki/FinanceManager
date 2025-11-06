@@ -108,6 +108,8 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context, ILo
             typeof(T).Name, filter.Page, filter.ItemsPerPage);
 
         var query = Entities.AsNoTracking();
+        if (includeRelated)
+            query = IncludeRelatedEntities(query);
         query = SetFilters(filter, query);
         query = query.Skip(filter.Skip).Take(filter.Take);
         var entities = await query.ToListAsync(cancellationToken);

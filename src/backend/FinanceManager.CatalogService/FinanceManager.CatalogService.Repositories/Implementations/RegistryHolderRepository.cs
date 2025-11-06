@@ -19,6 +19,59 @@ public class RegistryHolderRepository(DatabaseContext context, ILogger logger)
     private readonly ILogger _logger = logger;
 
     /// <summary>
+/// Инициализирует репозиторий владельцев справочников набором сущностей, если они ещё не существуют.
+/// </summary>
+/// <param name="entities">Коллекция владельцев для инициализации.</param>
+/// <param name="cancellationToken">Токен отмены операции.</param>
+/// <returns>Количество добавленных записей.</returns>
+public async Task<int> InitializeAsync(IEnumerable<RegistryHolder> entities, 
+    CancellationToken cancellationToken = default)
+{
+    _logger.Information("Начинается инициализация владельцев реестров");
+
+    var holdersList = entities as ICollection<RegistryHolder> ?? entities.ToList();
+    _logger.Debug("Подготовлено {HoldersCount} владельцев для инициализации", holdersList.Count);
+
+    if (!await Entities.AnyAsync(cancellationToken))
+    {
+        _logger.Debug("Таблица владельцев пуста, добавляем всех");
+        await Entities.AddRangeAsync(holdersList, cancellationToken);
+        var result = await _context.CommitAsync(cancellationToken);
+        _logger.Information("Инициализация завершена, добавлено {AddedCount} владельцев", result);
+        return result;
+    }
+
+    _logger.Debug("Таблица содержит данные, проверяем уникальность по TelegramId");
+    var query = Entities.AsQueryable();
+    var addedCount = 0;
+
+    foreach (var holder in holdersList)
+    {
+        if (!await query.AnyAsync(
+                rh => rh.TelegramId == holder.TelegramId, 
+                cancellationToken))
+        {
+            await Entities.AddAsync(holder, cancellationToken);
+            addedCount++;
+            _logger.Debug("Добавлен владелец: TelegramId={TelegramId}, Role={Role}", 
+                holder.TelegramId, holder.Role);
+        }
+        else
+        {
+            _logger.Debug("Владелец с TelegramId={TelegramId} уже существует, пропускаем", 
+                holder.TelegramId);
+        }
+    }
+
+    var commitResult = await _context.CommitAsync(cancellationToken);
+    _logger.Information("Инициализация завершена, добавлено {AddedCount} новых владельцев из {TotalCount}", 
+        addedCount, holdersList.Count);
+
+    return commitResult;
+}
+
+    
+    /// <summary>
     /// Применяет фильтры к запросу владельцев справочников.
     /// </summary>
     /// <param name="filter">Фильтр владельцев справочников.</param>

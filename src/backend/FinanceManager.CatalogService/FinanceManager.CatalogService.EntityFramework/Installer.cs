@@ -59,7 +59,10 @@ public static class Installer
             .AddScoped(typeof(ISeedingEntitiesProducer<>), typeof(SeedingEntitiesFileProducer<>))
             .AddScoped<IDataSeeder, CountryFileSeeder>()
             .AddScoped<IDataSeeder, BankFileSeeder>()
-            .AddScoped<IDataSeeder, CurrencyFileSeeder>();
+            .AddScoped<IDataSeeder, CurrencyFileSeeder>()
+            .AddScoped<IDataSeeder, RegistryHolderFileSeeder>()
+            .AddScoped<IDataSeeder, AccountTypeFileSeeder>()
+            .AddScoped<IDataSeeder, AccountFileSeeder>();
         return services;
     }
 

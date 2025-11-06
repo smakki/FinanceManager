@@ -4,7 +4,8 @@ using FinanceManager.CatalogService.Domain.Entities;
 
 namespace FinanceManager.CatalogService.Abstractions.Repositories;
 
-public interface IRegistryHolderRepository : IBaseRepository<RegistryHolder, RegistryHolderFilterDto>,
+public interface IRegistryHolderRepository : IBaseRepository<RegistryHolder, RegistryHolderFilterDto>, 
+    IInitializerRepository<RegistryHolder>,
     IDeletableValidator
 {
     /// <summary>
