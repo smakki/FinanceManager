@@ -68,6 +68,9 @@
       <None Update="Seeding\Data\Resources\accounts.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Seeding\Data\Resources\categories.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

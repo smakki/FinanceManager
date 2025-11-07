@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FinanceManager.TransactionsService.Domain.Abstractions;
 
 namespace FinanceManager.TransactionsService.Domain.Entities;
@@ -37,6 +38,7 @@ public class TransactionsAccount(Guid accountTypeId, Guid currencyId, Guid holde
     /// <summary>
     /// Идентификатор владельца счёта
     /// </summary>
+    [JsonPropertyName("registryHolderId")]
     public Guid HolderId { get; set; } = holderId;
     
     /// <summary>

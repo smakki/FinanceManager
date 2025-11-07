@@ -86,7 +86,8 @@ public async Task<int> InitializeAsync(IEnumerable<Account> entities,
             .Include(a => a.RegistryHolder)
             .Include(a => a.AccountType)
             .Include(a => a.Currency)
-            .Include(a => a.Bank);
+            .Include(a => a.Bank)
+            .Include(a=> a.Bank!.Country);
     }
 
     /// <summary>

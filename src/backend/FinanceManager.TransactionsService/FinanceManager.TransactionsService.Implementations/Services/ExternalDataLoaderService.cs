@@ -182,7 +182,7 @@ private async Task LoadEntitiesAsync<TDto, TEntity, TFilter>(
             cancellationToken.ThrowIfCancellationRequested();
 
             var id = getId(dto);
-            var existing = await repository.GetByIdAsync(id, cancellationToken: cancellationToken);
+            var existing = await repository.GetByIdAsync(id, cancellationToken: cancellationToken, includeRelated: false);
 
             if (existing == null)
             {

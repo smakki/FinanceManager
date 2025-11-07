@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FinanceManager.TransactionsService.Abstractions.Services;
 using FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
 using FinanceManager.TransactionsService.API.Extensions;
+using FinanceManager.TransactionsService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -27,7 +28,7 @@ public class TransactionController(ILogger logger, ITransactionService transacti
     }
     
     [HttpGet(Name = "Get list transactions")]
-    public async Task<ActionResult<ICollection<TransactionDto>>> Get(
+    public async Task<ActionResult<ICollection<Transaction>>> Get(
         [FromQuery] TransactionFilterDto filter,
         CancellationToken cancellationToken = default)
     {
@@ -37,7 +38,7 @@ public class TransactionController(ILogger logger, ITransactionService transacti
     }
     
     [HttpPost(Name = "Create transactions")]
-    public async Task<ActionResult<TransactionDto>> Create(
+    public async Task<ActionResult<Transaction>> Create(
         [FromQuery] CreateTransactionDto createDto,
         CancellationToken cancellationToken = default)
     {

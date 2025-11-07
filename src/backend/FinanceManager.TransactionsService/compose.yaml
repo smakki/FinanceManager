@@ -1,5 +1,5 @@
 ﻿services:
-  db:
+  tsdb:
     image: postgres:16
     command: ["postgres", "-p", "5434"]
     restart: always
@@ -11,26 +11,35 @@
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "55433:5434"
+    networks:
+      - financemanager_common_net
 
   transaction-service:
     build:
       context: .
       dockerfile: FinanceManager.TransactionsService.API/Dockerfile
     depends_on:
-      - db
+      - tsdb
     ports:
       - "8082:8082"
       - "8083:8083"
       - "5024:5024"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      DbSettings__Host: db
+      DbSettings__Host: tsdb
       DbSettings__Port: ${DbSettings__Port}
       DbSettings__Database: ${DbSettings__Database}
       DbSettings__Username: ${DbSettings__Username}
       DbSettings__Password: ${DbSettings__Password}
       ASPNETCORE_HTTP_PORTS: ${ASPNETCORE_HTTP_PORTS}
+      ExternalApis__CatalogService__Url: "http://catalog-service:8080"
     restart: always
+    networks:
+      - financemanager_common_net
 
 volumes:
   postgres_data:
+    
+networks:
+  financemanager_common_net:
+    external: true

@@ -1,4 +1,5 @@
 ﻿using FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
+using FinanceManager.TransactionsService.Domain.Entities;
 using FluentResults;
 
 namespace FinanceManager.TransactionsService.Abstractions.Services;
@@ -13,14 +14,14 @@ public interface ITransactionService
     /// <summary>
     /// Получает список транзакций с пагинацией и фильтрацией
     /// </summary>
-    Task<Result<ICollection<TransactionDto>>> GetPagedAsync(
+    Task<Result<ICollection<Transaction>>> GetPagedAsync(
         TransactionFilterDto filter,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Создаёт новую транзакцию
     /// </summary>
-    Task<Result<TransactionDto>> CreateAsync(
+    Task<Result<Transaction>> CreateAsync(
         CreateTransactionDto createDto,
         CancellationToken cancellationToken = default);
 

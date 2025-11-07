@@ -1,4 +1,5 @@
 ﻿using FinanceManager.CatalogService.Contracts.DTOs.Categories;
+using FinanceManager.CatalogService.Domain.Entities;
 using FluentResults;
 
 namespace FinanceManager.CatalogService.Abstractions.Services;
@@ -22,7 +23,7 @@ public interface ICategoryService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком категорий или ошибкой</returns>
-    Task<Result<ICollection<CategoryDto>>> GetPagedAsync(
+    Task<Result<ICollection<Category>>> GetPagedAsync(
         CategoryFilterDto filter,
         CancellationToken cancellationToken = default);
 

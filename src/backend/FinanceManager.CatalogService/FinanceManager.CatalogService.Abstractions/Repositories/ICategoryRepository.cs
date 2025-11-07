@@ -7,7 +7,7 @@ namespace FinanceManager.CatalogService.Abstractions.Repositories;
 /// <summary>
 /// Интерфейс репозитория для работы с категориями доходов и расходов
 /// </summary>
-public interface ICategoryRepository : IBaseRepository<Category, CategoryFilterDto>
+public interface ICategoryRepository : IBaseRepository<Category, CategoryFilterDto>, IInitializerRepository<Category>
 {
     /// <summary>
     /// Получает все категории пользователя

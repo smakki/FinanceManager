@@ -2,6 +2,7 @@
 using FinanceManager.CatalogService.Abstractions.Repositories.Common;
 using FinanceManager.CatalogService.Abstractions.Services;
 using FinanceManager.CatalogService.Contracts.DTOs.Categories;
+using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
 using FluentResults;
 using Serilog;
@@ -45,16 +46,16 @@ public class CategoryService(
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком категорий или ошибкой</returns>
-    public async Task<Result<ICollection<CategoryDto>>> GetPagedAsync(CategoryFilterDto filter,
+    public async Task<Result<ICollection<Category>>> GetPagedAsync(CategoryFilterDto filter,
         CancellationToken cancellationToken = default)
     {
         logger.Information("Получение списка категорий с фильтрацией: {@Filter}", filter);
 
         var categories = await categoryRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
-        var categoriesDto = categories.ToDto();
+        //var categoriesDto = categories.ToDto();
 
-        logger.Information("Получено {Count} категорий", categoriesDto.Count);
-        return Result.Ok(categoriesDto);
+        logger.Information("Получено {Count} категорий", categories.Count);
+        return Result.Ok(categories);
     }
 
     /// <summary>

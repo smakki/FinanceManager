@@ -15,8 +15,6 @@ public static class QuartzExtensions
 
         services.AddQuartz(q =>
         {
-            
-
             var jobKey = new JobKey(nameof(ExternalDataLoaderJob));
             q.AddJob<ExternalDataLoaderJob>(opts => opts.WithIdentity(jobKey));
             q.AddTrigger(opts => opts

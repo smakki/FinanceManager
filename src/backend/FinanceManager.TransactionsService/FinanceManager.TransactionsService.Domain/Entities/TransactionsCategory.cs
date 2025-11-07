@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FinanceManager.TransactionsService.Domain.Abstractions;
 
 namespace FinanceManager.TransactionsService.Domain.Entities;
@@ -13,6 +14,7 @@ public class TransactionsCategory(Guid holderId,bool income, bool expense):SoftD
     /// <summary>
     /// Идентификатор владельца категории — пользователя системы
     /// </summary>
+    [JsonPropertyName("registryHolderId")]
     public Guid HolderId { get; set; } = holderId;
     
     /// <summary>

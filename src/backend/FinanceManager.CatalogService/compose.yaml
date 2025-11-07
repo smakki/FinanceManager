@@ -1,5 +1,5 @@
 ﻿services:
-  db:
+  csdb:
     image: postgres:16
     restart: always
     environment:
@@ -10,25 +10,33 @@
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "55432:5432"
+    networks:
+      - financemanager_common_net
 
   catalog-service:
     build:
       context: .
       dockerfile: FinanceManager.CatalogService.API/Dockerfile
     depends_on:
-      - db
+      - csdb
     ports:
       - "8080:8080"
       - "8081:8081"
       - "5023:5023"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      FmcsDbSettings__Host: db
+      FmcsDbSettings__Host: csdb
       FmcsDbSettings__Port: "5432"
       FmcsDbSettings__Database: ${FmcsDbSettings__Database}
       FmcsDbSettings__Username: ${FmcsDbSettings__Username}
       FmcsDbSettings__Password: ${FmcsDbSettings__Password}
     restart: always
+    networks:
+      - financemanager_common_net
 
 volumes:
   postgres_data:
+    
+networks:
+  financemanager_common_net:
+    external: true

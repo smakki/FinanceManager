@@ -14,7 +14,7 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
         builder.HasKey(t => t.Id);
         
         builder.Property(t => t.Id)
-            .ValueGeneratedNever();
+            .ValueGeneratedOnAdd();
         
         builder.Property(t => t.Date)
             .IsRequired();

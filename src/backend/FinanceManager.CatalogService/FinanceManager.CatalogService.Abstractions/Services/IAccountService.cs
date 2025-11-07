@@ -1,4 +1,5 @@
 ﻿using FinanceManager.CatalogService.Contracts.DTOs.Accounts;
+using FinanceManager.CatalogService.Domain.Entities;
 using FluentResults;
 
 namespace FinanceManager.CatalogService.Abstractions.Services;
@@ -22,7 +23,7 @@ public interface IAccountService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком счетов или ошибкой</returns>
-    Task<Result<ICollection<AccountDto>>> GetPagedAsync(
+    Task<Result<ICollection<Account>>> GetPagedAsync(
         AccountFilterDto filter, 
         CancellationToken cancellationToken = default);
     

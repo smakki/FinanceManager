@@ -9,6 +9,7 @@ using Serilog;
 using Swashbuckle.AspNetCore.Annotations;
 using FluentResults;
 using FinanceManager.CatalogService.API.Extensions;
+using FinanceManager.CatalogService.Domain.Entities;
 
 namespace FinanceManager.CatalogService.API.Controllers;
 
@@ -59,7 +60,7 @@ public class AccountController(IAccountService accountService, ILogger logger) :
     [SwaggerResponse(200, "Список счетов успешно получен", typeof(ICollection<AccountDto>))]
     [SwaggerResponse(400, "Некорректные параметры фильтрации")]
     [SwaggerResponse(500, "Внутренняя ошибка сервера")]
-    public async Task<ActionResult<ICollection<AccountDto>>> Get(
+    public async Task<ActionResult<ICollection<Account>>> Get(
         [FromQuery] AccountFilterDto filter,
         CancellationToken cancellationToken)
     {

@@ -3,6 +3,7 @@ using FinanceManager.TransactionsService.Abstractions.Repositories;
 using FinanceManager.TransactionsService.Abstractions.Repositories.Common;
 using FinanceManager.TransactionsService.Abstractions.Services;
 using FinanceManager.TransactionsService.Contracts.DTOs.Transfers;
+using FinanceManager.TransactionsService.Domain.Entities;
 using FluentResults;
 using Serilog;
 
@@ -39,13 +40,13 @@ public class TransferService(IUnitOfWork unitOfWork,
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком переводов или ошибкой</returns>
-    public async Task<Result<ICollection<TransferDto>>> GetPagedAsync(TransferFilterDto filter, CancellationToken cancellationToken = default)
+    public async Task<Result<ICollection<Transfer>>> GetPagedAsync(TransferFilterDto filter, CancellationToken cancellationToken = default)
     {
         logger.Information("Getting paged transfers with filter: {@Filter}", filter);
-        var transfers = await transferRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
-        var transfersDto = transfers.ToDto();
-        logger.Information("Successfully retrieved {Count} transfers", transfersDto.Count);
-        return Result.Ok(transfersDto);
+        var transfers = await transferRepository.GetPagedAsync(filter, includeRelated: false,
+            cancellationToken: cancellationToken);
+        logger.Information("Successfully retrieved {Count} transfers", transfers.Count);
+        return Result.Ok(transfers);
     }
 
     /// <summary>
@@ -54,7 +55,7 @@ public class TransferService(IUnitOfWork unitOfWork,
     /// <param name="createDto">Данные для создания перевода</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат с созданным переводом или ошибкой</returns>
-    public async Task<Result<TransferDto>> CreateAsync(CreateTransferDto createDto, CancellationToken cancellationToken = default)
+    public async Task<Result<Transfer>> CreateAsync(CreateTransferDto createDto, CancellationToken cancellationToken = default)
     {
         logger.Information("Creating transaction: {@CreateDto}", createDto);
         
@@ -74,7 +75,7 @@ public class TransferService(IUnitOfWork unitOfWork,
         var transaction = await transferRepository.AddAsync(createDto.ToTransfer(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
         logger.Information("Successfully created transaction: {TransactionId}", transaction.Id);
-        return Result.Ok(transaction.ToDto());
+        return Result.Ok(transaction);
     }
 
     public async Task<Result<TransferDto>> UpdateAsync(UpdateTransferDto updateDto, CancellationToken cancellationToken = default)

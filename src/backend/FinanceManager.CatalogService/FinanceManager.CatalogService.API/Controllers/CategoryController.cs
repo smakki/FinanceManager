@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FinanceManager.CatalogService.Abstractions.Services;
 using FinanceManager.CatalogService.API.Extensions;
 using FinanceManager.CatalogService.Contracts.DTOs.Categories;
+using FinanceManager.CatalogService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using ILogger = Serilog.ILogger;
@@ -76,7 +77,7 @@ public class CategoryController(ICategoryService categoryService, ILogger logger
     [SwaggerResponse(200, "Список категорий успешно получен", typeof(ICollection<CategoryDto>))]
     [SwaggerResponse(400, "Некорректные параметры фильтрации")]
     [SwaggerResponse(500, "Внутренняя ошибка сервера")]
-    public async Task<ActionResult<ICollection<CategoryDto>>> Get(
+    public async Task<ActionResult<ICollection<Category>>> Get(
         [FromQuery] CategoryFilterDto filter,
         CancellationToken cancellationToken)
     {

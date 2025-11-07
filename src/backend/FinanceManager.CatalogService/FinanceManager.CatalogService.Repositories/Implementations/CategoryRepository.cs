@@ -18,6 +18,60 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
     private readonly DatabaseContext _context = context;
     private readonly ILogger _logger = logger;
 
+    public async Task<int> InitializeAsync(IEnumerable<Category> entities,
+    CancellationToken cancellationToken = default)
+{
+    _logger.Information("Начинается инициализация категорий");
+
+    var categoriesList = entities as ICollection<Category> ?? entities.ToList();
+    _logger.Debug("Подготовлено {CategoriesCount} категорий для инициализации", categoriesList.Count);
+
+    // Если таблица пуста — добавляем всё сразу
+    if (!await Entities.AnyAsync(cancellationToken))
+    {
+        _logger.Debug("Таблица категорий пуста, добавляем все категории");
+        await Entities.AddRangeAsync(categoriesList, cancellationToken);
+        var result = await _context.CommitAsync(cancellationToken);
+        _logger.Information("Инициализация завершена, добавлено {AddedCount} категорий", result);
+        return result;
+    }
+
+    _logger.Debug("Таблица категорий содержит данные, проверяем уникальность категорий");
+    var query = Entities.AsQueryable();
+    var addedCount = 0;
+
+    foreach (var entity in categoriesList)
+    {
+        // Уникальность: имя внутри (RegistryHolderId, ParentId), регистронезависимо
+        var exists = await query.AnyAsync(
+            c =>
+                c.RegistryHolderId == entity.RegistryHolderId &&
+                ((c.ParentId == null && entity.ParentId == null) || c.ParentId == entity.ParentId) &&
+                string.Equals(c.Name, entity.Name, StringComparison.InvariantCultureIgnoreCase),
+            cancellationToken);
+
+        if (!exists)
+        {
+            await Entities.AddAsync(entity, cancellationToken);
+            addedCount++;
+            _logger.Debug("Добавлена категория: {CategoryName} (владелец {RegistryHolderId}, родитель {ParentId})",
+                entity.Name, entity.RegistryHolderId, entity.ParentId);
+        }
+        else
+        {
+            _logger.Debug("Категория {CategoryName} для владельца {RegistryHolderId} и родителя {ParentId} уже существует, пропускаем",
+                entity.Name, entity.RegistryHolderId, entity.ParentId);
+        }
+    }
+
+    var commitResult = await _context.CommitAsync(cancellationToken);
+    _logger.Information("Инициализация завершена, добавлено {AddedCount} новых категорий из {TotalCount}",
+        addedCount, categoriesList.Count);
+
+    return commitResult;
+}
+
+    
     /// <summary>
     /// Включает связанные сущности RegistryHolder и Parent для категории.
     /// </summary>

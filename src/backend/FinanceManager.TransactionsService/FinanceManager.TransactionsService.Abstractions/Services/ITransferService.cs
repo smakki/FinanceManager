@@ -1,4 +1,5 @@
 ﻿using FinanceManager.TransactionsService.Contracts.DTOs.Transfers;
+using FinanceManager.TransactionsService.Domain.Entities;
 using FluentResults;
 
 namespace FinanceManager.TransactionsService.Abstractions.Services;
@@ -13,14 +14,14 @@ public interface ITransferService
     /// <summary>
     /// Получает список переводов с пагинацией и фильтрацией
     /// </summary>
-    Task<Result<ICollection<TransferDto>>> GetPagedAsync(
+    Task<Result<ICollection<Transfer>>> GetPagedAsync(
         TransferFilterDto filter,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Создаёт новый перевод
     /// </summary>
-    Task<Result<TransferDto>> CreateAsync(
+    Task<Result<Transfer>> CreateAsync(
         CreateTransferDto createDto,
         CancellationToken cancellationToken = default);
 

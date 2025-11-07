@@ -2,6 +2,7 @@
 using FinanceManager.CatalogService.Abstractions.Repositories.Common;
 using FinanceManager.CatalogService.Abstractions.Services;
 using FinanceManager.CatalogService.Contracts.DTOs.Accounts;
+using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
 using FluentResults;
 using Serilog;
@@ -48,16 +49,16 @@ public class AccountService(
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком счетов или ошибкой</returns>
-    public async Task<Result<ICollection<AccountDto>>> GetPagedAsync(AccountFilterDto filter,
+    public async Task<Result<ICollection<Account>>> GetPagedAsync(AccountFilterDto filter,
         CancellationToken cancellationToken = default)
     {
         logger.Information("Получение списка счетов с фильтрацией: {@Filter}", filter);
 
         var accounts = await accountRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
-        var accountsDto = accounts.ToDto();
+        //var accountsDto = accounts.ToDto();
 
-        logger.Information("Получено {Count} счетов", accountsDto.Count);
-        return Result.Ok(accountsDto);
+        logger.Information("Получено {Count} счетов", accounts.Count);
+        return Result.Ok(accounts);
     }
 
     /// <summary>

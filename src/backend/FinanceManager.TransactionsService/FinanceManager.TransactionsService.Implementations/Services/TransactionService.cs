@@ -3,6 +3,7 @@ using FinanceManager.TransactionsService.Abstractions.Repositories;
 using FinanceManager.TransactionsService.Abstractions.Repositories.Common;
 using FinanceManager.TransactionsService.Abstractions.Services;
 using FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
+using FinanceManager.TransactionsService.Domain.Entities;
 using FluentResults;
 using Serilog;
 
@@ -41,15 +42,15 @@ public class TransactionService(
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком транзакций или ошибкой</returns>
-    public async Task<Result<ICollection<TransactionDto>>> GetPagedAsync(
+    public async Task<Result<ICollection<Transaction>>> GetPagedAsync(
         TransactionFilterDto filter,
         CancellationToken cancellationToken = default)
     {
         logger.Information("Getting paged transactions with filter: {@Filter}", filter);
-        var transactions = await transactionRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
-        var transactionsDto = transactions.ToDto();
-        logger.Information("Successfully retrieved {Count} transactions", transactionsDto.Count);
-        return Result.Ok(transactionsDto);
+        var transactions = await transactionRepository.GetPagedAsync(filter, includeRelated:false,
+            cancellationToken: cancellationToken);
+        logger.Information("Successfully retrieved {Count} transactions", transactions.Count);
+        return Result.Ok(transactions);
     }
 
     /// <summary>
@@ -74,7 +75,7 @@ public class TransactionService(
     /// <param name="createDto">Данные для создания транзакции</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат с созданной транзакцией или ошибкой</returns>
-    public async Task<Result<TransactionDto>> CreateAsync(
+    public async Task<Result<Transaction>> CreateAsync(
         CreateTransactionDto createDto,
         CancellationToken cancellationToken = default)
     {
@@ -97,7 +98,7 @@ public class TransactionService(
         var transaction = await transactionRepository.AddAsync(createDto.ToTransaction(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
         logger.Information("Successfully created transaction: {TransactionId}", transaction.Id);
-        return Result.Ok(transaction.ToDto());
+        return Result.Ok(transaction);
     }
 
     /// <summary>

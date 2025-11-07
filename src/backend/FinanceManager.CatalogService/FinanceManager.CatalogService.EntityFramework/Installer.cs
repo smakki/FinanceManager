@@ -62,7 +62,8 @@ public static class Installer
             .AddScoped<IDataSeeder, CurrencyFileSeeder>()
             .AddScoped<IDataSeeder, RegistryHolderFileSeeder>()
             .AddScoped<IDataSeeder, AccountTypeFileSeeder>()
-            .AddScoped<IDataSeeder, AccountFileSeeder>();
+            .AddScoped<IDataSeeder, AccountFileSeeder>()
+            .AddScoped<IDataSeeder, CategoryFileSeeder>();
         return services;
     }
 
